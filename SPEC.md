@@ -136,6 +136,7 @@ any heading in its Active section.
 | **L1 — Structural** | All artefacts at §3.1-§3.7 exist with the correct names. Schemas validate. The five RULE classes (§RULE-1..§RULE-5) each have at least one declared rule. |
 | **L2 — Gate-enforced** | L1 + every declared rule has a corresponding CI gate that runs on every merge to the default branch. Failing gates block merge. |
 | **L3 — Self-Governed** | L2 + the project itself emits the §RULE-4 evidence event family on every CI run. The repo can re-derive any decision from its own audit chain. |
+| **L4 — Platform-Bijected** | L3 + the project publishes a generated meta-index (`platform/meta-index.generated.json`) that catalogs every named surface (engines, agents, workers, schemas, pages, endpoints, widgets, tables, gates, subdomains, SDKs, plugins) with bidirectional references back to the per-domain manifest that owns each declaration. A drift gate verifies bijection on every merge. |
 
 A project MAY self-declare its conformance level in its README. The
 **SCCT (Software Constitution Conformance Test)** at
