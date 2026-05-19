@@ -1,0 +1,32 @@
+{
+  "$comment": "Software Constitution Standard v1.0 §3.5 + §6 — Implementation Registry template. Replace the placeholders with your project's concepts. Validate against schemas/software-constitution-implementation-registry.v1.json.",
+  "schema": "software-constitution.implementation_registry.v1",
+  "version": "1.0",
+  "adopted": "YYYY-MM-DD",
+  "constitution_ref": "constitution/NN-IMPLEMENTATION-CANONICAL.md",
+  "notes": [
+    "Single-Implementation Mandate: every named capability has EXACTLY ONE canonical implementation. Wrappers MUST import the SSOT package."
+  ],
+  "concepts": [
+    {
+      "concept_id": "example.capability",
+      "name": "Example named capability",
+      "plane": "decision",
+      "constitution_ref": "constitution/NN-RULE.md",
+      "ssot_module": "path/to/the/canonical/implementation",
+      "ssot_package": "@example/library",
+      "ssot_entry_point": "exportedFunction()",
+      "transport_wrappers": [
+        {
+          "module": "path/to/wrapper-worker",
+          "transport": "http",
+          "must_import": "@example/library",
+          "note": "HTTP surface around the SSOT — must call the library, never reimplement."
+        }
+      ],
+      "competitor_forbidden_patterns": [
+        "path/to/*example*/src/implementation.ts"
+      ]
+    }
+  ]
+}
