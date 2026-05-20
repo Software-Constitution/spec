@@ -12,11 +12,11 @@
 ### The open standard for codebases that govern themselves.
 
 [![License](https://img.shields.io/badge/license-Apache_2.0-E63935?style=for-the-badge)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Spec](https://img.shields.io/badge/spec-v1.0-0B0B0F?style=for-the-badge&labelColor=E63935)](https://github.com/Software-Constitution/repo/blob/main/SPEC.md)
-[![SCCT](https://img.shields.io/badge/SCCT-L0–L4-2A2A36?style=for-the-badge)](https://github.com/Software-Constitution/repo/tree/main/scct)
-[![Patent-safe](https://img.shields.io/badge/patent--safe-yes-2A2A36?style=for-the-badge)](https://github.com/Software-Constitution/repo/blob/main/LICENSE)
+[![Spec](https://img.shields.io/badge/spec-v1.0-0B0B0F?style=for-the-badge&labelColor=E63935)](https://github.com/Software-Constitution/spec/blob/main/SPEC.md)
+[![SCCT](https://img.shields.io/badge/SCCT-L0–L4-2A2A36?style=for-the-badge)](https://github.com/Software-Constitution/spec/tree/main/scct)
+[![Patent-safe](https://img.shields.io/badge/patent--safe-yes-2A2A36?style=for-the-badge)](https://github.com/Software-Constitution/spec/blob/main/LICENSE)
 
-[**softwareconstitution.com**](https://softwareconstitution.com) · [**Spec**](https://github.com/Software-Constitution/repo/blob/main/SPEC.md) · [**SCCT**](https://github.com/Software-Constitution/repo/tree/main/scct) · [**Templates**](https://github.com/Software-Constitution/repo/tree/main/templates)
+[**softwareconstitution.com**](https://softwareconstitution.com) · [**Spec**](https://github.com/Software-Constitution/spec/blob/main/SPEC.md) · [**SCCT**](https://github.com/Software-Constitution/spec/tree/main/scct) · [**Templates**](https://github.com/Software-Constitution/spec/tree/main/templates)
 
 </div>
 
@@ -79,7 +79,7 @@ npx scct your-repo
 
 | Repo | What |
 |------|------|
-| [`repo`](https://github.com/Software-Constitution/repo) | The standard — SPEC, templates, schemas, reference gates, SCCT |
+| [`spec`](https://github.com/Software-Constitution/spec) | The standard — SPEC, templates, schemas, reference gates, SCCT |
 
 More language ports (Python / Go / Rust) land as separate repos when ready.
 

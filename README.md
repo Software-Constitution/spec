@@ -149,7 +149,7 @@ Closest analogues: **12-Factor App** (heroku.com, 2011), **OpenAPI**
 ## Governance
 
 This is v1.0. Feedback issues at
-<https://github.com/Software-Constitution/repo/issues>.
+<https://github.com/Software-Constitution/spec/issues>.
 
 ---
 
