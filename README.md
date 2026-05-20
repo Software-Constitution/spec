@@ -1,14 +1,29 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# Software Constitution
+<div align="center">
+
+<img src="https://softwareconstitution.com/assets/logo-wordmark.svg" alt="software/constitution" width="520" />
+
+### The open standard for codebases that govern themselves.
+
+[![License](https://img.shields.io/badge/license-Apache_2.0-E63935?style=flat-square)](./LICENSE)
+[![Spec](https://img.shields.io/badge/spec-v1.0-0B0B0F?style=flat-square&labelColor=E63935)](./SPEC.md)
+[![SCCT](https://img.shields.io/badge/SCCT-L0–L4-2A2A36?style=flat-square)](./scct)
+[![Patent-safe](https://img.shields.io/badge/patent--safe-yes-2A2A36?style=flat-square)](./LICENSE)
+[![Reference](https://img.shields.io/badge/reference_conformer-KYE_Protocol-E63935?style=flat-square)](https://github.com/KYE-Protocol)
+
+[**softwareconstitution.com**](https://softwareconstitution.com) · [**Spec**](./SPEC.md) · [**SCCT**](./scct) · [**Templates**](./templates) · [**Schemas**](./schemas)
+
+</div>
+
+---
 
 > **Language-agnostic. Provider-agnostic. Domain-agnostic.**
 > A standard for projects that want to enforce their own design
 > principles at CI time, with versioned rules, an implementation
 > registry, and drift gates that block merges on violation.
 
-**Status:** v1.0 (Draft RFC) · **License:** Apache-2.0 ·
-**Home:** <https://softwareconstitution.com> (planned)
+**Status:** v1.0 · **License:** Apache-2.0 · **Home:** <https://softwareconstitution.com>
 
 ---
 
@@ -31,15 +46,15 @@ gates are in `gates/`. Project templates are in `templates/`.
   evidence the codebase honours its own rules.
 - **Open-source maintainers** who want forks to inherit the
   governance discipline, not just the code.
-- **Procurement teams** evaluating vendors — a "Software-Constitution
+- **Procurement teams** evaluating vendors — a "Software Constitution
   L3 conformant" badge is a real signal about engineering maturity.
 
 ---
 
 ## What you get
 
-1. **A spec** (`SPEC.md`) — 11 sections defining the standard, the
-   five required rule classes, the three conformance levels.
+1. **A spec** ([`SPEC.md`](./SPEC.md)) — 11 sections defining the standard, the
+   five required rule classes, the five conformance levels.
 2. **Templates** (`templates/`) — copy-paste starting points for
    the four required canonical artefacts:
    - `00-INDEX.template.md` — the master constitution index
@@ -56,7 +71,7 @@ gates are in `gates/`. Project templates are in `templates/`.
    - `gates/zero-deviation-mandate.go` — Go (planned)
 5. **SCCT** (`scct/`) — the Software Constitution Conformance Test
    CLI. Runs against any candidate repo and emits a JSON verdict
-   (L0 / L1 / L2 / L3).
+   (L0 / L1 / L2 / L3 / L4).
 
 ---
 
@@ -88,13 +103,14 @@ The SCCT emits one of:
 - `L1` — structural conformance (artefacts exist, schemas validate)
 - `L2` — gate-enforced (every rule has a passing gate)
 - `L3` — self-governed (project emits its own audit chain)
+- `L4` — platform-bijected (every named surface tracked in a generated meta-index)
 
 ---
 
 ## The five rule classes (every constitution MUST address)
 
 1. **Zero Competing Systems** (Single-Implementation Mandate)
-2. **Zero Repo↔Prod Drift**
+2. **Zero Repo ↔ Prod Drift**
 3. **Zero Stubs / Placeholders / Mocks** reachable from production
 4. **Self-Governance + Canonical-First**
 5. **Zero-Deviation Mandate** — Active deviations are a regression
@@ -104,14 +120,15 @@ existence of at least one rule per class is the conformance bar.
 
 ---
 
-## Reference implementation
+## Reference conformer
 
 The **KYE Protocol™** monorepo at
-<https://github.com/KYE-Protocol/app> is the canonical reference
-implementation. It demonstrates L3 conformance with ~40
-constitutional documents, ~80 CI gates, and the full Implementation
-Registry pattern. The standard was extracted from KYE Protocol™'s
-internal constitution; KYE remains the reference conformer.
+<https://github.com/KYE-Protocol> is the canonical reference
+conformer. It demonstrates L4 conformance with ~40
+constitutional documents, ~85 CI gates, ~1,700 named surfaces tracked
+in a generated meta-index, and the full Implementation Registry pattern.
+The standard was extracted from KYE Protocol™'s internal constitution;
+KYE remains the reference conformer.
 
 ---
 
@@ -125,15 +142,14 @@ internal constitution; KYE remains the reference conformer.
   conforming software constitution, you MUST have …".
 
 Closest analogues: **12-Factor App** (heroku.com, 2011), **OpenAPI**
-(linux foundation), **ADR (Architecture Decision Records)**.
+(Linux Foundation), **ADR (Architecture Decision Records)**.
 
 ---
 
 ## Governance
 
-This is a draft RFC at v1.0. Feedback issues prefixed `[scs]` at
-<https://github.com/KYE-Protocol/app/issues>. Once a separate
-`software-constitution/spec` repo lands, RFCs move there.
+This is v1.0. Feedback issues at
+<https://github.com/Software-Constitution/repo/issues>.
 
 ---
 
@@ -143,6 +159,6 @@ Apache-2.0. See [`LICENSE`](./LICENSE).
 
 The methodology, schemas, templates, and reference gates are
 patent-safe — the Apache 2.0 license grants explicit patent rights
-for the published surface. The reference implementation
+for the published surface. The reference conformer
 (KYE Protocol™) carries its own trademarks and patent portfolio,
 licensed separately.

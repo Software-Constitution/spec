@@ -1,0 +1,331 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>software/constitution™ — the open standard for self-governing codebases</title>
+  <meta name="description" content="Apache-2.0 open standard for codebases that enforce their own design principles at CI time. Language-agnostic. Provider-agnostic. Four conformance levels (L0–L4). Tested by SCCT." />
+  <meta name="keywords" content="software constitution, software constitution standard, SCCT, codebase governance, CI gate, drift gate, self-governing repo, Apache 2.0, language-agnostic standard, 12-factor for governance" />
+  <link rel="canonical" href="https://softwareconstitution.com/" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="software/constitution™ — the open standard for self-governing codebases" />
+  <meta property="og:description" content="Apache-2.0 open standard for codebases that enforce their own design principles at CI time. Language-agnostic. Provider-agnostic." />
+  <meta property="og:image" content="https://softwareconstitution.com/assets/og.png" />
+  <meta property="og:url" content="https://softwareconstitution.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="software/constitution™" />
+  <meta name="twitter:description" content="Open standard for self-governing codebases. Apache 2.0." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo-icon.svg" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Software Constitution Standard v1.0",
+    "description": "Apache-2.0 open standard for codebases that enforce their own design principles at CI time. Language-agnostic. Provider-agnostic.",
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "url": "https://softwareconstitution.com/",
+    "datePublished": "2026-05-19",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Software Constitution",
+      "url": "https://github.com/Software-Constitution"
+    },
+    "keywords": "software constitution, SCCT, codebase governance, CI gate, drift gate, Apache 2.0, self-governing repo"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "What is a software constitution?", "acceptedAnswer": { "@type": "Answer", "text": "A software constitution is the set of design principles your codebase enforces at CI time — versioned, machine-readable, blocking on violation. Wiki pages don't count; gates do." } },
+      { "@type": "Question", "name": "What is the Software Constitution Standard?", "acceptedAnswer": { "@type": "Answer", "text": "An Apache-2.0 open specification that defines five rule classes every conformant project addresses, four conformance levels (L0–L4), and the SCCT (Software Constitution Conformance Test) CLI that emits an objective verdict per repo." } },
+      { "@type": "Question", "name": "Who is it for?", "acceptedAnswer": { "@type": "Answer", "text": "Engineering leaders encoding principles as code; regulated buyers (banks, healthcare) requiring auditable evidence; OSS maintainers wanting forks to inherit governance; procurement teams scoring vendor engineering maturity." } },
+      { "@type": "Question", "name": "Is it tied to one language or platform?", "acceptedAnswer": { "@type": "Answer", "text": "No. The specification is language-, provider-, and domain-agnostic. Reference gates ship in Node.js today; Python, Go, and Rust ports are planned. The conformance bar is the existence of a passing gate, not the language it runs in." } },
+      { "@type": "Question", "name": "What is SCCT?", "acceptedAnswer": { "@type": "Answer", "text": "Software Constitution Conformance Test — a CLI that scans a candidate repo and emits a JSON verdict at L0, L1, L2, L3, or L4. Run npx scct <repo>. Procurement teams can require L3 in their RFPs and have an external test for it." } },
+      { "@type": "Question", "name": "Is this safe for closed-source companies?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The standard is Apache-2.0; adoption requires no relicensing of your code. The spec, schemas, templates, and reference gates carry an explicit patent grant. Your repo and your IP stay yours." } }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #0B0B0F;
+      --bg-2: #14141A;
+      --paper: #1A1A22;
+      --line: #2A2A36;
+      --text: #F4F4F5;
+      --text-muted: #94949D;
+      --red: #E63935;
+      --red-soft: rgba(230, 57, 53, 0.10);
+      --red-2: rgba(230, 57, 53, 0.30);
+      --type-11: 11px;
+      --type-12: 12px;
+      --type-13: 13px;
+      --type-14: 14px;
+      --type-16: 16px;
+      --type-18: 18px;
+      --type-24: 24px;
+      --type-28: 28px;
+      --type-32: 32px;
+      --type-48: 48px;
+      --type-56: 56px;
+      --radius: 12px;
+      --max: 1100px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: var(--type-16);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    code, pre { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+    a { color: var(--red); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+    .skip-link { position: absolute; left: -9999px; }
+    .skip-link:focus { left: 16px; top: 16px; background: var(--red); color: #fff; padding: 8px 12px; border-radius: 6px; z-index: 1000; }
+
+    header.bar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(11,11,15,0.85);
+      backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .bar-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--text); font-weight: 700; }
+    .brand img { height: 28px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--text-muted); font-size: var(--type-14); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-cta { background: var(--red); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: var(--type-14); font-weight: 600; }
+    .nav-cta:hover { color: #fff; text-decoration: none; opacity: 0.92; }
+    @media (max-width: 720px) {
+      .nav-links a:not(.nav-cta) { display: none; }
+    }
+
+    .hero { padding: 80px 0 60px; }
+    .hero-pill { display: inline-flex; gap: 8px; align-items: center; background: var(--red-soft); color: var(--red); padding: 6px 12px; border-radius: 999px; font-size: var(--type-12); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+    .hero h1 {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-weight: 800;
+      font-size: clamp(36px, 6vw, var(--type-56));
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin: 24px 0 18px;
+    }
+    .hero h1 .slash { color: var(--red); }
+    .hero p.lede { font-size: var(--type-18); color: var(--text-muted); max-width: 760px; }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: var(--type-14); font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { text-decoration: none; opacity: 0.9; }
+    .btn-primary { background: var(--red); color: #fff; }
+    .btn-secondary { background: var(--paper); color: var(--text); border: 1px solid var(--line); }
+    .btn-ghost { color: var(--text-muted); border: 1px solid var(--line); }
+    .btn-ghost:hover { color: var(--text); }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+    .badges img { height: 22px; }
+
+    section.block { padding: 64px 0; border-top: 1px solid var(--line); }
+    section.block.alt { background: var(--bg-2); }
+    .eyebrow { display: inline-block; font-size: var(--type-12); color: var(--red); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 10px; }
+    h2 { font-size: clamp(28px, 4vw, var(--type-32)); margin: 0 0 16px; letter-spacing: -0.5px; }
+    h3 { font-size: var(--type-18); margin: 0 0 8px; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+    @media (max-width: 820px) { .grid-3 { grid-template-columns: 1fr; } }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .card p { color: var(--text-muted); font-size: var(--type-14); margin: 8px 0 0; }
+    .card .num { font-family: 'JetBrains Mono', monospace; color: var(--red); font-weight: 700; font-size: var(--type-13); }
+
+    .levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 24px; }
+    @media (max-width: 820px) { .levels { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .levels { grid-template-columns: 1fr; } }
+    .level { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+    .level .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: var(--type-24); color: var(--red); }
+    .level p { font-size: var(--type-13); color: var(--text-muted); margin: 8px 0 0; }
+
+    pre.code { background: #0a0a0f; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; overflow-x: auto; font-size: var(--type-13); line-height: 1.6; color: #d4d4d8; margin: 16px 0; }
+    pre.code .c { color: #71717a; }
+    pre.code .k { color: var(--red); }
+
+    .faq-item { border-top: 1px solid var(--line); padding: 16px 0; }
+    .faq-item:first-child { border-top: 0; }
+    .faq-item h3 { font-size: var(--type-16); margin-bottom: 6px; }
+    .faq-item p { color: var(--text-muted); font-size: var(--type-14); margin: 0; }
+
+    footer.foot { border-top: 1px solid var(--line); padding: 40px 0; color: var(--text-muted); font-size: var(--type-13); }
+    .foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; }
+    .foot-row a { color: var(--text-muted); }
+    .foot-row a:hover { color: var(--text); text-decoration: none; }
+  </style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header class="bar" role="banner">
+  <div class="container bar-inner">
+    <a class="brand" href="/" aria-label="software/constitution home">
+      <img src="assets/logo-icon.svg" alt="" />
+      <span>software<span style="color:var(--red)">/</span>constitution<sup style="font-size:10px;opacity:0.7">™</sup></span>
+    </a>
+    <nav class="nav-links" aria-label="primary">
+      <a href="#what">What</a>
+      <a href="#rules">Rules</a>
+      <a href="#levels">Levels</a>
+      <a href="#adopt">Adopt</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-cta" href="https://github.com/Software-Constitution" rel="noopener" target="_blank">GitHub →</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="container">
+    <span class="hero-pill"><span aria-hidden="true">●</span> v1.0 · Apache 2.0 · open standard</span>
+    <h1>The open standard for codebases that<br/>govern <span class="slash">/</span> themselves.</h1>
+    <p class="lede">Wiki pages don't enforce design principles. Gates do. <strong>software/constitution™</strong> is a language-agnostic, Apache-2.0 specification for codebases that encode their own rules as machine-enforceable artefacts — and prove it on every CI run.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#adopt">Adopt in 5 steps →</a>
+      <a class="btn btn-secondary" href="https://github.com/Software-Constitution" rel="noopener" target="_blank">View on GitHub</a>
+      <a class="btn btn-ghost" href="#levels">See conformance levels</a>
+    </div>
+    <div class="badges" aria-label="repository badges">
+      <img src="https://img.shields.io/badge/license-Apache_2.0-E63935?style=flat-square" alt="License: Apache 2.0" />
+      <img src="https://img.shields.io/badge/spec-v1.0-0B0B0F?style=flat-square&labelColor=E63935" alt="Spec: v1.0" />
+      <img src="https://img.shields.io/badge/SCCT-L4_platform--bijected-2A2A36?style=flat-square" alt="SCCT: L4 platform-bijected" />
+      <img src="https://img.shields.io/badge/patent--safe-yes-2A2A36?style=flat-square" alt="Patent-safe: yes" />
+    </div>
+  </div>
+</section>
+
+<section class="block" id="what">
+  <div class="container">
+    <span class="eyebrow">What it is</span>
+    <h2>An open standard, not a framework or a tool.</h2>
+    <p style="color:var(--text-muted);max-width:780px;font-size:var(--type-16)">A <strong>software constitution</strong> is the set of design principles your codebase enforces at CI time — versioned, machine-readable, blocking on violation. <strong>software/constitution™</strong> is the Apache-2.0 specification that defines what such a thing requires and how to test for it. Closest analogues: <em>12-Factor App</em> (heroku, 2011), <em>OpenAPI</em>, <em>ADRs</em>. We borrow from all three.</p>
+    <div class="grid-3">
+      <div class="card"><span class="num">01 · Spec</span><h3>The specification</h3><p>11 sections defining five required rule classes, five conformance levels, the canonical artefact contract, and the SCCT verdict format.</p></div>
+      <div class="card"><span class="num">02 · Templates</span><h3>Copy-paste starting points</h3><p>Master constitution index, deviations log, decay windows, implementation registry — JSON-Schema validated.</p></div>
+      <div class="card"><span class="num">03 · Reference gates</span><h3>Drop-in CI implementations</h3><p>Reference drift-gates that any project can wire into its CI. Node.js shipping; Python / Go / Rust planned.</p></div>
+      <div class="card"><span class="num">04 · SCCT</span><h3>The conformance test</h3><p><code>npx scct &lt;repo&gt;</code> emits a JSON verdict at L0 / L1 / L2 / L3 / L4. External, objective, scriptable.</p></div>
+      <div class="card"><span class="num">05 · Schemas</span><h3>Machine-readable contract</h3><p>JSON Schema 2020-12 files for every canonical artefact. Your CI validates against them on every push.</p></div>
+      <div class="card"><span class="num">06 · Patent-safe</span><h3>Apache-2.0 grant included</h3><p>The spec, schemas, templates, and reference gates ship with the Apache-2.0 patent grant. Safe to adopt at any company.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="rules">
+  <div class="container">
+    <span class="eyebrow">The five rule classes</span>
+    <h2>Every conformant constitution must address all five.</h2>
+    <p style="color:var(--text-muted);max-width:780px">Naming and numbering is project-specific. The conformance bar is: at least one passing gate per class, on every push.</p>
+    <div class="grid-3">
+      <div class="card"><span class="num">Class 1</span><h3>Zero Competing Systems</h3><p>Every named capability has exactly one canonical implementation. Drift gate blocks a second implementation of an existing capability.</p></div>
+      <div class="card"><span class="num">Class 2</span><h3>Zero Repo ↔ Prod Drift</h3><p>What's declared in the repo is what's running. A reconciler proves the bijection; CI fails if production diverges from main.</p></div>
+      <div class="card"><span class="num">Class 3</span><h3>Zero Stubs / Mocks in Prod</h3><p>No TODO, FIXME, placeholder content, or mock data reachable from production. The gate scans every shipping path.</p></div>
+      <div class="card"><span class="num">Class 4</span><h3>Self-Governance + Canonical-First</h3><p>Every privileged action emits the project's own audit chain. Vocabulary is declared canonically before it's referenced.</p></div>
+      <div class="card"><span class="num">Class 5</span><h3>Zero-Deviation Mandate</h3><p>Active deviations are a regression. Time-boxed exceptions allowed; the empty-Active-deviations state is the steady state.</p></div>
+      <div class="card" style="background:var(--red-soft);border-color:var(--red-2)"><span class="num" style="color:var(--red)">Outcome</span><h3 style="color:var(--red)">Self-governing by construction</h3><p style="color:var(--text)">Every merge is its own attestation. Procurement, audit, and forks get a single objective signal — not a stack of wiki pages.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="levels">
+  <div class="container">
+    <span class="eyebrow">Conformance levels</span>
+    <h2>Five levels. SCCT decides which one your repo is at.</h2>
+    <div class="levels">
+      <div class="level"><span class="tag">L0</span><h3>None</h3><p>No constitution found.</p></div>
+      <div class="level"><span class="tag">L1</span><h3>Structural</h3><p>Canonical artefacts exist; schemas validate.</p></div>
+      <div class="level"><span class="tag">L2</span><h3>Gated</h3><p>Every rule has a passing CI gate.</p></div>
+      <div class="level"><span class="tag">L3</span><h3>Self-governed</h3><p>Project emits its own audit chain.</p></div>
+      <div class="level"><span class="tag">L4</span><h3>Platform-bijected</h3><p>Every named surface is in a generated meta-index — declared = deployed.</p></div>
+    </div>
+    <p style="color:var(--text-muted);margin-top:18px;font-size:var(--type-14)">Run it: <code style="background:var(--paper);border:1px solid var(--line);padding:3px 8px;border-radius:6px">npx scct /path/to/your/repo</code>. Output is a single JSON verdict procurement teams can ingest.</p>
+  </div>
+</section>
+
+<section class="block alt" id="adopt">
+  <div class="container">
+    <span class="eyebrow">Adoption path</span>
+    <h2>Five steps. Hours, not weeks.</h2>
+<pre class="code"><span class="c"># 1. Copy the templates into your repo</span>
+<span class="k">cp</span> -r software-constitution/templates/* your-repo/constitution/
+
+<span class="c"># 2. Author your rules (one document per rail, numbered)</span>
+<span class="k">$EDITOR</span> your-repo/constitution/00-INDEX.md
+<span class="k">$EDITOR</span> your-repo/constitution/01-YOUR-FIRST-RAIL.md
+
+<span class="c"># 3. Declare your implementation registry</span>
+<span class="k">$EDITOR</span> your-repo/private/specs/implementation/registry.json
+
+<span class="c"># 4. Wire the reference gates into CI</span>
+<span class="k">cp</span> software-constitution/gates/*.mjs your-repo/scripts/gates/
+
+<span class="c"># 5. Run the conformance test</span>
+<span class="k">npx</span> scct your-repo</pre>
+    <p style="color:var(--text-muted);max-width:780px;font-size:var(--type-14)">Full walkthrough on GitHub. The reference implementation (KYE Protocol™) demonstrates L4 conformance with ~40 constitutional documents, ~85 CI gates, and ~1,700 named surfaces tracked in a generated meta-index.</p>
+  </div>
+</section>
+
+<section class="block" id="reference">
+  <div class="container">
+    <span class="eyebrow">Reference conformer</span>
+    <h2>KYE Protocol™ is the L4 reference.</h2>
+    <p style="color:var(--text-muted);max-width:780px">The standard was extracted from KYE Protocol™'s internal constitution. KYE remains the canonical reference conformer — Apache-2.0 public mirror repos demonstrate the gates passing on a real, production-grade codebase.</p>
+    <div class="hero-cta">
+      <a class="btn btn-secondary" href="https://github.com/KYE-Protocol" target="_blank" rel="noopener">github.com/KYE-Protocol</a>
+      <a class="btn btn-ghost" href="https://kyeprotocol.com/software-constitution.html" target="_blank" rel="noopener">Reference conformance report</a>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="faq">
+  <div class="container">
+    <span class="eyebrow">FAQ</span>
+    <h2>Common questions.</h2>
+    <div style="margin-top:18px">
+      <div class="faq-item"><h3>What is a software constitution?</h3><p>The set of design principles your codebase enforces at CI time — versioned, machine-readable, blocking on violation. Wiki pages don't count; gates do.</p></div>
+      <div class="faq-item"><h3>What is the Software Constitution Standard?</h3><p>An Apache-2.0 open specification that defines five rule classes every conformant project addresses, five conformance levels (L0–L4), and the SCCT CLI that emits an objective verdict.</p></div>
+      <div class="faq-item"><h3>Who is it for?</h3><p>Engineering leaders encoding principles as code; regulated buyers (banks, healthcare) requiring auditable evidence; OSS maintainers wanting forks to inherit governance; procurement teams scoring vendor engineering maturity.</p></div>
+      <div class="faq-item"><h3>Is it tied to one language or platform?</h3><p>No. The specification is language-, provider-, and domain-agnostic. The conformance bar is the existence of a passing gate, not the language it runs in.</p></div>
+      <div class="faq-item"><h3>Is this safe for closed-source companies?</h3><p>Yes. Apache-2.0 means adoption requires no relicensing of your code. The spec, schemas, templates, and reference gates carry an explicit patent grant. Your repo and your IP stay yours.</p></div>
+      <div class="faq-item"><h3>How does this relate to OpenAPI / 12-Factor / ADRs?</h3><p>OpenAPI standardises the wire contract; 12-Factor standardises operational shape; ADRs document decisions. <strong>software/constitution™</strong> standardises the rules you commit to <em>and</em> the CI gates that enforce them.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="container foot-row">
+    <div>
+      <strong style="color:var(--text)">software<span style="color:var(--red)">/</span>constitution<sup style="font-size:10px;opacity:0.7">™</sup></strong>
+      &nbsp;·&nbsp; Apache 2.0 &nbsp;·&nbsp; v1.0 &nbsp;·&nbsp; patent-safe
+    </div>
+    <div>
+      <a href="https://github.com/Software-Constitution" target="_blank" rel="noopener">GitHub</a> &nbsp;·&nbsp;
+      <a href="https://github.com/Software-Constitution/repo/blob/main/SPEC.md" target="_blank" rel="noopener">Spec</a> &nbsp;·&nbsp;
+      <a href="https://github.com/Software-Constitution/repo/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

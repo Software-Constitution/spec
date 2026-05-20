@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="software/constitution icon">
+  <title>s/c™</title>
+  <style>
+    .br { fill: #E63935; stroke: #E63935; stroke-width: 38; stroke-linecap: round; stroke-linejoin: round; fill-rule: evenodd; }
+    .bk { fill: #0B0B0F; }
+    .tm { fill: #0B0B0F; font: 700 64px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    @media (prefers-color-scheme: dark) {
+      .bk { fill: #F4F4F5; }
+      .tm { fill: #F4F4F5; }
+    }
+  </style>
+  <polyline class="br" points="120,140 70,256 120,372" fill="none"/>
+  <polyline class="br" points="392,140 442,256 392,372" fill="none"/>
+  <path class="br" d="M250 100 L290 100 L262 412 L222 412 Z"/>
+  <text x="146" y="332" class="bk" style="font:900 240px 'JetBrains Mono','Fira Code',ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;">s</text>
+  <text x="306" y="332" class="bk" style="font:900 240px 'JetBrains Mono','Fira Code',ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;">c</text>
+  <text x="430" y="160" class="tm">™</text>
+</svg>
