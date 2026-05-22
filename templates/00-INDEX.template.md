@@ -52,6 +52,17 @@ they live in `constitution/DECAY-WINDOWS.md` separately.
 
 **Gate:** `<gates-root>/zero-deviation-mandate.<ext>`
 
+### §0.6 — Coherent Integration / No Orphans
+
+Every named component (engine, agent, worker, schema, manifest,
+dictionary, registry, endpoint, gate) MUST integrate with the rest of
+the system through bidirectional canonical references — registry →
+component and component → registry. A component on disk that is
+referenced by no manifest, registry, or declaration is an orphan, and
+an orphan is a §0 violation.
+
+**Gate:** `<gates-root>/coherent-integration-mandate.<ext>`
+
 ---
 
 ## Constitution documents (locked, numbered, immutable order)

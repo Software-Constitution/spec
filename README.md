@@ -72,6 +72,13 @@ gates are in `gates/`. Project templates are in `templates/`.
 5. **SCCT** (`scct/`) — the Software Constitution Conformance Test
    CLI. Runs against any candidate repo and emits a JSON verdict
    (L0 / L1 / L2 / L3 / L4).
+6. **Constitution Kit** (`kit/`) — the enforcement toolkit: a
+   manifest-driven drift-gate engine (`gate-runner`) plus an `init`
+   scaffolder. Where SCCT *grades* a repo, the kit *scaffolds and
+   enforces* one — `init` lays down the engine + this standard's
+   constitution skeleton, and `run.mjs` runs every registry `--check`
+   and single-value-concept scan declared in `constitution-kit.json`.
+   Zero runtime dependencies. Governed by KYE constitution §42.
 
 ---
 
@@ -117,6 +124,25 @@ The SCCT emits one of:
 
 Naming and numbering of individual rules is project-specific; the
 existence of at least one rule per class is the conformance bar.
+
+---
+
+## The governance stack
+
+software/constitution™ is the **build layer** of a three-layer
+open-standards stack — each layer Apache-2.0, each standing on its own,
+composing into one chain from regulation to runtime evidence:
+
+| Layer | Standard | Answers |
+|---|---|---|
+| **Model** | [Compliance-to-Architecture™](https://github.com/Compliance-to-Architecture) | *What must be true?* |
+| **Build** | **software/constitution™** | *Does the codebase honour its own rules?* |
+| **Runtime** | [KYE Protocol™](https://github.com/KYE-Protocol) | *Was the action validly authorised — provably?* |
+
+Compliance-to-Architecture™ models the obligations and controls;
+software/constitution™ proves the codebase stays honest to them at CI
+time; KYE Protocol™ proves the runtime honoured authority and emits the
+evidence.
 
 ---
 

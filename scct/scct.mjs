@@ -85,13 +85,14 @@ if (L1) verdict.level = "L1";
 // ---------- L2 — gate-enforced ----------
 // Look for the four conformance gates by either canonical name or
 // the project's own naming. We check for the presence of at least
-// one gate corresponding to each of the five RULE classes.
+// one gate corresponding to each of the six RULE classes.
 const gateGlobs = [
   { rule: "RULE-1", patterns: [/implementation-canonical/i, /single-impl/i, /competing-systems/i] },
   { rule: "RULE-2", patterns: [/repo-prod-drift/i, /reconcil/i, /deploy.*declared/i] },
   { rule: "RULE-3", patterns: [/no-stubs/i, /placeholders/i, /mocks/i] },
   { rule: "RULE-4", patterns: [/canonical-first/i, /event-registry/i, /self-govern/i] },
   { rule: "RULE-5", patterns: [/zero-deviation/i] },
+  { rule: "RULE-6", patterns: [/coherent-integration/i, /no-orphan/i, /bijection/i] },
 ];
 
 function walkScripts(dir) {

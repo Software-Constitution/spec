@@ -7,7 +7,7 @@
 
 <div align="center">
 
-<img src="https://softwareconstitution.com/assets/logo-wordmark.svg" alt="software/constitution" width="520" />
+<img src="https://softwareconstitution.com/assets/logo.jpg" alt="software/constitution" width="520" />
 
 ### The open standard for codebases that govern themselves.
 
@@ -82,6 +82,18 @@ npx scct your-repo
 | [`spec`](https://github.com/Software-Constitution/spec) | The standard — SPEC, templates, schemas, reference gates, SCCT |
 
 More language ports (Python / Go / Rust) land as separate repos when ready.
+
+## The governance stack
+
+software/constitution™ is the **build layer** of a three-layer open-standards stack — each layer Apache-2.0, each standing on its own, composing into one chain from regulation to runtime evidence:
+
+| Layer | Standard | Answers |
+|---|---|---|
+| **Model** | [Compliance-to-Architecture™](https://github.com/Compliance-to-Architecture) | *What must be true?* |
+| **Build** | **software/constitution™** | *Does the codebase honour its own rules?* |
+| **Runtime** | [KYE Protocol™](https://github.com/KYE-Protocol) | *Was the action validly authorised — provably?* |
+
+Compliance-to-Architecture™ models the obligations and controls; **software/constitution™** proves the codebase stays honest to them at CI time; KYE Protocol™ proves the runtime honoured authority and emits the evidence.
 
 ## Reference conformer
 

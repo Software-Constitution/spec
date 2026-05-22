@@ -76,9 +76,9 @@ implementation).
 
 ---
 
-## 4. The five RULE classes (any constitution MUST address all five)
+## 4. The six RULE classes (any constitution MUST address all six)
 
-A conforming constitution MUST contain rules of all five RULE classes
+A conforming constitution MUST contain rules of all six RULE classes
 below. Naming and numbering of individual rules is project-specific;
 the existence of at least one rule per class is the conformance bar.
 
@@ -127,13 +127,28 @@ themselves specify a time-boxed compliance trajectory) live in
 Required: a zero-deviation gate that fails when DEVIATIONS.md has
 any heading in its Active section.
 
+### §RULE-6 — Coherent Integration / No Orphans
+
+Every named component (engine, agent, worker, schema, manifest,
+dictionary, registry, endpoint, gate) MUST integrate with the rest of
+the system through bidirectional canonical references — registry →
+component and component → registry. A component that exists on disk
+but is referenced by no manifest, registry, or declaration is an
+**orphan**, and an orphan is a violation. The system is one unit, not
+a federation of islands.
+
+Required: a coherent-integration gate that checks, at every
+component-class seam, both directions — every declared component
+resolves to something on disk, and every component on disk is
+declared. New seams are added as new component classes appear.
+
 ---
 
 ## 5. Conformance levels
 
 | Level | Requirements |
 |---|---|
-| **L1 — Structural** | All artefacts at §3.1-§3.7 exist with the correct names. Schemas validate. The five RULE classes (§RULE-1..§RULE-5) each have at least one declared rule. |
+| **L1 — Structural** | All artefacts at §3.1-§3.7 exist with the correct names. Schemas validate. The six RULE classes (§RULE-1..§RULE-6) each have at least one declared rule. |
 | **L2 — Gate-enforced** | L1 + every declared rule has a corresponding CI gate that runs on every merge to the default branch. Failing gates block merge. |
 | **L3 — Self-Governed** | L2 + the project itself emits the §RULE-4 evidence event family on every CI run. The repo can re-derive any decision from its own audit chain. |
 | **L4 — Platform-Bijected** | L3 + the project publishes a generated meta-index (`platform/meta-index.generated.json`) that catalogs every named surface (engines, agents, workers, schemas, pages, endpoints, widgets, tables, gates, subdomains, SDKs, plugins) with bidirectional references back to the per-domain manifest that owns each declaration. A drift gate verifies bijection on every merge. |

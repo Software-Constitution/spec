@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kyeprotocol.com/schemas/constitution-kit.manifest.v1.json",
+  "title": "Constitution Kit project manifest",
+  "description": "Declares the governed facts of an adopting project: its constitution directory, its machine-readable registries (each with a generator that must support a --check drift mode), and its single-value concepts (facts that must appear exactly once across the surface). The Constitution Kit gate-runner reads this file to enforce drift-zero and zero-competing-systems.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project", "constitution_dir"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable project name."
+    },
+    "constitution_dir": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Repo-relative path to the constitution directory (the doc set governing the project)."
+    },
+    "registries": {
+      "type": "array",
+      "description": "Every machine-readable registry the project governs. Each registry is the single source of truth for a set of facts; derived artifacts are generated from it and drift-checked.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "generator"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "source": {
+            "type": "string",
+            "description": "Repo-relative path to the registry data file."
+          },
+          "schema": {
+            "type": "string",
+            "description": "Optional repo-relative path to the JSON Schema the source is validated against."
+          },
+          "generator": {
+            "type": "string",
+            "description": "Repo-relative path to the generator script. MUST accept a --check flag that exits non-zero on drift."
+          },
+          "outputs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Artifacts the generator emits. Documentation only; the generator's own --check is authoritative."
+          }
+        }
+      }
+    },
+    "single_value_concepts": {
+      "type": "array",
+      "description": "Facts that must appear exactly once across the surface (zero competing systems). The gate-runner scans each pattern across the globs and fails when more than one distinct value is found.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "pattern", "globs"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "pattern": {
+            "type": "string",
+            "description": "A JavaScript regular expression. The first capture group (or the whole match if there is none) is the value that must be uniform."
+          },
+          "globs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Glob patterns (** and * supported) of files to scan."
+          }
+        }
+      }
+    }
+  }
+}
