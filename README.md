@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="https://softwareconstitution.com/assets/logo-wordmark.svg" alt="software/constitution" width="520" />
+<img src="https://softwareconstitution.com/assets/logo.jpg" alt="software/constitution" width="520" />
 
 ### The open standard for codebases that govern themselves.
 
