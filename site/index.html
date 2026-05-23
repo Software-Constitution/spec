@@ -12,12 +12,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="software/constitution™ — the open standard for self-governing codebases" />
   <meta property="og:description" content="Apache-2.0 open standard for codebases that enforce their own design principles at CI time. Language-agnostic. Provider-agnostic." />
-  <meta property="og:image" content="https://softwareconstitution.com/assets/og.png" />
+  <meta property="og:image" content="https://softwareconstitution.com/assets/logo.jpg" />
   <meta property="og:url" content="https://softwareconstitution.com/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="software/constitution™" />
   <meta name="twitter:description" content="Open standard for self-governing codebases. Apache 2.0." />
-  <link rel="icon" type="image/svg+xml" href="assets/logo-icon.svg" />
+  <meta name="kye:answers" content="Engineering leaders: the open Apache-2.0 standard for codebases that enforce their own design principles at CI time — 5 rule classes, 5 conformance levels (L0–L4), SCCT CLI verdict." />
+  <link rel="icon" type="image/jpeg" href="assets/icon.jpg" />
+  <link rel="apple-touch-icon" href="assets/icon.jpg" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
   <script type="application/ld+json">
@@ -53,12 +55,12 @@
   </script>
   <style>
     :root {
-      --bg: #0B0B0F;
-      --bg-2: #14141A;
-      --paper: #1A1A22;
-      --line: #2A2A36;
+      --bg: #15151B;
+      --bg-2: #1E1E26;
+      --paper: #27272F;
+      --line: #383844;
       --text: #F4F4F5;
-      --text-muted: #94949D;
+      --text-muted: #B7B7C0;
       --red: #E63935;
       --red-soft: rgba(230, 57, 53, 0.10);
       --red-2: rgba(230, 57, 53, 0.30);
@@ -101,7 +103,7 @@
     }
     .bar-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
     .brand { display: flex; align-items: center; gap: 12px; color: var(--text); font-weight: 700; }
-    .brand img { height: 28px; width: auto; display: block; }
+    .brand img { height: 30px; width: auto; display: block; border-radius: 6px; }
     .nav-links { display: flex; gap: 24px; align-items: center; }
     .nav-links a { color: var(--text-muted); font-size: var(--type-14); }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
@@ -116,10 +118,13 @@
     .hero h1 {
       font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-weight: 800;
-      font-size: clamp(36px, 6vw, var(--type-56));
-      line-height: 1.05;
+      /* Monospace is wide — a 56px cap overflowed the line on narrower
+         / zoomed viewports. Cap lower and let it wrap naturally. */
+      font-size: clamp(28px, 4.6vw, 44px);
+      line-height: 1.1;
       letter-spacing: -1.5px;
       margin: 24px 0 18px;
+      overflow-wrap: break-word;
     }
     .hero h1 .slash { color: var(--red); }
     .hero p.lede { font-size: var(--type-18); color: var(--text-muted); max-width: 760px; }
@@ -162,10 +167,17 @@
     pre.code .c { color: #71717a; }
     pre.code .k { color: var(--red); }
 
-    .faq-item { border-top: 1px solid var(--line); padding: 16px 0; }
+    .faq-item { border-top: 1px solid var(--line); }
     .faq-item:first-child { border-top: 0; }
-    .faq-item h3 { font-size: var(--type-16); margin-bottom: 6px; }
-    .faq-item p { color: var(--text-muted); font-size: var(--type-14); margin: 0; }
+    .faq-item > summary {
+      font-size: var(--type-16); font-weight: 700; color: var(--text);
+      padding: 16px 0; cursor: pointer; list-style: none;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    }
+    .faq-item > summary::-webkit-details-marker { display: none; }
+    .faq-item > summary::after { content: "+"; color: var(--red); font-size: var(--type-24); font-weight: 400; line-height: 1; }
+    .faq-item[open] > summary::after { content: "\2212"; }
+    .faq-item p { color: var(--text-muted); font-size: var(--type-14); margin: 0 0 16px; }
 
     footer.foot { border-top: 1px solid var(--line); padding: 40px 0; color: var(--text-muted); font-size: var(--type-13); }
     .foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; }
@@ -179,7 +191,7 @@
 <header class="bar" role="banner">
   <div class="container bar-inner">
     <a class="brand" href="/" aria-label="software/constitution home">
-      <img src="assets/logo-icon.svg" alt="" />
+      <img src="assets/icon.jpg" alt="" />
       <span>software<span style="color:var(--red)">/</span>constitution<sup style="font-size:10px;opacity:0.7">™</sup></span>
     </a>
     <nav class="nav-links" aria-label="primary">
@@ -198,7 +210,7 @@
 <section class="hero">
   <div class="container">
     <span class="hero-pill"><span aria-hidden="true">●</span> v1.0 · Apache 2.0 · open standard</span>
-    <h1>The open standard for codebases that<br/>govern <span class="slash">/</span> themselves.</h1>
+    <h1>The open standard for codebases that govern <span class="slash">/</span> themselves.</h1>
     <p class="lede">Wiki pages don't enforce design principles. Gates do. <strong>software/constitution™</strong> is a language-agnostic, Apache-2.0 specification for codebases that encode their own rules as machine-enforceable artefacts — and prove it on every CI run.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="#adopt">Adopt in 5 steps →</a>
@@ -284,29 +296,55 @@
   </div>
 </section>
 
-<section class="block" id="reference">
+<section class="block" id="stack">
   <div class="container">
-    <span class="eyebrow">Reference conformer</span>
-    <h2>KYE Protocol™ is the L4 reference.</h2>
-    <p style="color:var(--text-muted);max-width:780px">The standard was extracted from KYE Protocol™'s internal constitution. KYE remains the canonical reference conformer — Apache-2.0 public mirror repos demonstrate the gates passing on a real, production-grade codebase.</p>
-    <div class="hero-cta">
-      <a class="btn btn-secondary" href="https://github.com/KYE-Protocol" target="_blank" rel="noopener">github.com/KYE-Protocol</a>
-      <a class="btn btn-ghost" href="https://kyeprotocol.com/software-constitution.html" target="_blank" rel="noopener">Reference conformance report</a>
+    <span class="eyebrow">The governance stack</span>
+    <h2>The build layer of a three-layer open standard.</h2>
+    <p style="color:var(--text-muted);max-width:780px">Three Apache-2.0 standards, each standing on its own, composing into one chain from regulation to runtime evidence. software/constitution™ is the build layer.</p>
+    <div class="grid-3">
+      <div class="card">
+        <p style="font-weight:700;margin:0 0 6px">Model</p>
+        <p style="margin:0 0 8px"><a href="https://github.com/Compliance-to-Architecture">Compliance-to-Architecture™</a></p>
+        <p style="color:var(--text-muted);font-size:var(--type-14);margin:0">Turns regulation into a typed chain — obligation → control → architecture → policy-as-code → evidence. <em>What must be true?</em></p>
+      </div>
+      <div class="card">
+        <p style="font-weight:700;margin:0 0 6px">Build</p>
+        <p style="margin:0 0 8px"><strong>software/constitution™</strong></p>
+        <p style="color:var(--text-muted);font-size:var(--type-14);margin:0">The codebase enforces its own design principles at CI time — conformance L0–L4. <em>Does the codebase honour its own rules?</em></p>
+      </div>
+      <div class="card">
+        <p style="font-weight:700;margin:0 0 6px">Runtime</p>
+        <p style="margin:0 0 8px"><a href="https://github.com/KYE-Protocol">KYE Protocol™</a></p>
+        <p style="color:var(--text-muted);font-size:var(--type-14);margin:0">Entity verification, chain of authority, Evidence Packs, Authority Finality. <em>Was the action validly authorised — provably?</em></p>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="block alt" id="faq">
+<section class="block alt" id="reference">
+  <div class="container">
+    <span class="eyebrow">Reference conformer</span>
+    <h2>KYE Protocol™ is the L4 reference.</h2>
+    <p style="color:var(--text-muted);max-width:780px">The standard was extracted from KYE Protocol™'s internal constitution. KYE remains the canonical reference conformer — Apache-2.0 public mirror repos demonstrate the gates passing on a real, production-grade codebase. KYE publishes a <strong>live, signed transparency log</strong> of every privileged action — the standard's L3 "self-governed" bar in production.</p>
+    <div class="hero-cta">
+      <a class="btn btn-secondary" href="https://github.com/KYE-Protocol" target="_blank" rel="noopener">github.com/KYE-Protocol</a>
+      <a class="btn btn-ghost" href="https://kyeprotocol.com/software-constitution.html" target="_blank" rel="noopener">Reference conformance report</a>
+      <a class="btn btn-ghost" href="https://kyeprotocol.com/self-governance.html" target="_blank" rel="noopener">Live signed receipts &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq">
   <div class="container">
     <span class="eyebrow">FAQ</span>
     <h2>Common questions.</h2>
     <div style="margin-top:18px">
-      <div class="faq-item"><h3>What is a software constitution?</h3><p>The set of design principles your codebase enforces at CI time — versioned, machine-readable, blocking on violation. Wiki pages don't count; gates do.</p></div>
-      <div class="faq-item"><h3>What is the Software Constitution Standard?</h3><p>An Apache-2.0 open specification that defines five rule classes every conformant project addresses, five conformance levels (L0–L4), and the SCCT CLI that emits an objective verdict.</p></div>
-      <div class="faq-item"><h3>Who is it for?</h3><p>Engineering leaders encoding principles as code; regulated buyers (banks, healthcare) requiring auditable evidence; OSS maintainers wanting forks to inherit governance; procurement teams scoring vendor engineering maturity.</p></div>
-      <div class="faq-item"><h3>Is it tied to one language or platform?</h3><p>No. The specification is language-, provider-, and domain-agnostic. The conformance bar is the existence of a passing gate, not the language it runs in.</p></div>
-      <div class="faq-item"><h3>Is this safe for closed-source companies?</h3><p>Yes. Apache-2.0 means adoption requires no relicensing of your code. The spec, schemas, templates, and reference gates carry an explicit patent grant. Your repo and your IP stay yours.</p></div>
-      <div class="faq-item"><h3>How does this relate to OpenAPI / 12-Factor / ADRs?</h3><p>OpenAPI standardises the wire contract; 12-Factor standardises operational shape; ADRs document decisions. <strong>software/constitution™</strong> standardises the rules you commit to <em>and</em> the CI gates that enforce them.</p></div>
+      <details class="faq-item"><summary>What is a software constitution?</summary><p>The set of design principles your codebase enforces at CI time — versioned, machine-readable, blocking on violation. Wiki pages don't count; gates do.</p></details>
+      <details class="faq-item"><summary>What is the Software Constitution Standard?</summary><p>An Apache-2.0 open specification that defines five rule classes every conformant project addresses, five conformance levels (L0–L4), and the SCCT CLI that emits an objective verdict.</p></details>
+      <details class="faq-item"><summary>Who is it for?</summary><p>Engineering leaders encoding principles as code; regulated buyers (banks, healthcare) requiring auditable evidence; OSS maintainers wanting forks to inherit governance; procurement teams scoring vendor engineering maturity.</p></details>
+      <details class="faq-item"><summary>Is it tied to one language or platform?</summary><p>No. The specification is language-, provider-, and domain-agnostic. The conformance bar is the existence of a passing gate, not the language it runs in.</p></details>
+      <details class="faq-item"><summary>Is this safe for closed-source companies?</summary><p>Yes. Apache-2.0 means adoption requires no relicensing of your code. The spec, schemas, templates, and reference gates carry an explicit patent grant. Your repo and your IP stay yours.</p></details>
+      <details class="faq-item"><summary>How does this relate to OpenAPI / 12-Factor / ADRs?</summary><p>OpenAPI standardises the wire contract; 12-Factor standardises operational shape; ADRs document decisions. <strong>software/constitution™</strong> standardises the rules you commit to <em>and</em> the CI gates that enforce them.</p></details>
     </div>
   </div>
 </section>
