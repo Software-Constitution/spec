@@ -43,3 +43,15 @@ The current CLI requires Node.js >=20, `python3` and the separately pinned
 `jsonschema` Python package for schema validation. Before using on a new
 CI runner, provision `requirements-verification.txt`. A missing verifier
 remains a hard L1/L2 failure.
+
+### Source-bound CI evidence receipt (not an L3 signature)
+
+The Constitutional CI conformance job emits a versioned receipt,
+`software-constitution.ci-evidence.v1`, before publishing its artifact.
+It binds the checkout HEAD, GitHub SHA/run ID/attempt, the exact L2 verdict
+hash, all six rule gates, blocking-CI declaration and prior job status.
+Any mismatch writes `HELD` and fails the job, while `if: always()` retains
+a recovery artifact for failed attempts. The receipt is self-reported
+source-bound L2 evidence only; **independent signing-key custody,
+branch-protection enforcement and production reconciliation are NOT proven**.
+Never describe the hash or GitHub artifact alone as L3 provenance.

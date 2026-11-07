@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const src=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const paths=['implementation/registry.json','constitution/deployment-scope.json','constitution/event-registry.json','constitution/DEVIATIONS.md','scct/scct.mjs','kit/lib/gate-runner.mjs','kit/run.mjs','gates/zero-deviation-mandate.mjs','gates/zero-deviation-mandate.py','scripts/gates/constitutional-gate.mjs'];
+const paths=['implementation/registry.json','constitution/deployment-scope.json','constitution/event-registry.json','constitution/DEVIATIONS.md','scct/scct.mjs','kit/lib/gate-runner.mjs','kit/run.mjs','gates/zero-deviation-mandate.mjs','gates/zero-deviation-mandate.py','scripts/ci/evidence-receipt.mjs','scripts/gates/constitutional-gate.mjs'];
 function fixture(){
   const d=mkdtempSync(join(tmpdir(),'scs-gates-'));
   for (const p of paths) {

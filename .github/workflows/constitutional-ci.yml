@@ -25,16 +25,34 @@ jobs:
           node --check kit/lib/gate-runner.mjs
           node --test tests/*.test.mjs
       - name: Self conformance (no unverified L3/L4 claim)
+        shell: bash
         run: |
-          node scct/scct.mjs . --require-level=L2 > scct-verdict.json
+          set -euo pipefail
+          # Shell redirection MUST NOT create an untracked file inside the
+          # candidate checkout before SCCT samples the immutable source.
+          out="$(mktemp "${RUNNER_TEMP}/scct-verdict.XXXXXX")"
+          set +e
+          node scct/scct.mjs . --require-level=L2 > "$out"
+          outcome=$?
+          set -e
+          cp "$out" scct-verdict.json
           cat scct-verdict.json
-      - name: Export verdict
+          exit "$outcome"
+      - name: Emit exact-source T0 CI receipt (held on any earlier failure)
+        if: always()
+        env:
+          SCCT_PREVIOUS_JOB_STATUS: ${{ job.status }}
+        run: node scripts/ci/evidence-receipt.mjs
+      - name: Export immutable per-run source-bound evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scct-verdict
-          path: scct-verdict.json
-          if-no-files-found: warn
+          name: constitutional-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            scct-verdict.json
+            ci-evidence.json
+          retention-days: 90
+          if-no-files-found: error
   lean:
     runs-on: ubuntu-latest
     steps:
