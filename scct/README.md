@@ -55,3 +55,11 @@ a recovery artifact for failed attempts. The receipt is self-reported
 source-bound L2 evidence only; **independent signing-key custody,
 branch-protection enforcement and production reconciliation are NOT proven**.
 Never describe the hash or GitHub artifact alone as L3 provenance.
+
+### T0 independently challenged gates (conformance 1.2.0)
+
+A zero-exit gate is not evidence that it rejects forbidden changes. A v2 `constitution/gates.json` declares at least one deterministic **negative probe per RULE-1..6**. The conformance evaluator validates the v2 JSON Schema, copies the candidate into a clean, bounded scratch worktree (without Git credentials, symlinks or generated build dependencies), first proves the unmodified gate passes in isolation, then mutates one declared protected input and requires the **same gate to reject the counterexample**. Missing probes, non-mutating probes, path escapes, a failing control or an always-green gate all deny L2. T0 evidence receipts also require `RULE-n-negative-probe` decisions for all six gates.
+
+Probe kinds: `json-set` (existing JSON pointer), `json-append` (array pointer), `replace-text` (one exact unique occurrence), and `append-text`. A copy may be removed after the proof; no candidate file is modified by SCCT. Candidate gates should be reproducible from committed source, without pre-existing `node_modules`, `.git`, downloaded build output or external secrets. The runner executes candidate scripts: run it only in an isolated, unprivileged CI sandbox. Probe witnesses improve L2 falsifiability; they do not constitute an exhaustive proof that malicious scripts cannot selectively fake outcomes, nor prove GitHub branch protection is enabled.
+
+The v1 manifest without challenges does not qualify for L2 under SCCT 1.2.0; adopters must migrate declaratively (Diff-First).

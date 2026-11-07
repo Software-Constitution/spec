@@ -1,5 +1,5 @@
 {
-  "schema": "software-constitution.gates.v1",
+  "schema": "software-constitution.gates.v2",
   "gates": [
     {
       "rule": "RULE-1",
@@ -7,6 +7,14 @@
         "node",
         "scripts/gates/constitutional-gate.mjs",
         "RULE-1"
+      ],
+      "probes": [
+        {
+          "kind": "json-set",
+          "path": "implementation/registry.json",
+          "pointer": "/concepts/1/concept_id",
+          "value": "scct.conformance"
+        }
       ]
     },
     {
@@ -15,6 +23,16 @@
         "node",
         "scripts/gates/constitutional-gate.mjs",
         "RULE-2"
+      ],
+      "probes": [
+        {
+          "kind": "json-append",
+          "path": "constitution/deployment-scope.json",
+          "pointer": "/deployments",
+          "value": {
+            "id": "undeclared-deployment"
+          }
+        }
       ]
     },
     {
@@ -23,6 +41,13 @@
         "node",
         "scripts/gates/constitutional-gate.mjs",
         "RULE-3"
+      ],
+      "probes": [
+        {
+          "kind": "append-text",
+          "path": "kit/lib/gate-runner.mjs",
+          "text": "\n// TODO: illegal production placeholder\n"
+        }
       ]
     },
     {
@@ -31,6 +56,14 @@
         "node",
         "scripts/gates/constitutional-gate.mjs",
         "RULE-4"
+      ],
+      "probes": [
+        {
+          "kind": "json-set",
+          "path": "constitution/event-registry.json",
+          "pointer": "/events",
+          "value": []
+        }
       ]
     },
     {
@@ -39,6 +72,14 @@
         "node",
         "scripts/gates/constitutional-gate.mjs",
         "RULE-5"
+      ],
+      "probes": [
+        {
+          "kind": "replace-text",
+          "path": "constitution/DEVIATIONS.md",
+          "find": "## Active deviations\n\n_(none)_",
+          "replace": "## Active deviations\n\n### Forbidden waiver"
+        }
       ]
     },
     {
@@ -47,6 +88,14 @@
         "node",
         "scripts/gates/constitutional-gate.mjs",
         "RULE-6"
+      ],
+      "probes": [
+        {
+          "kind": "json-set",
+          "path": "implementation/registry.json",
+          "pointer": "/concepts/0/ssot_module",
+          "value": "missing/canonical-module.mjs"
+        }
       ]
     }
   ]

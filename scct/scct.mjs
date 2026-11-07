@@ -7,6 +7,7 @@ import { readFileSync, existsSync, readdirSync, statSync, realpathSync } from 'n
 import { join, resolve, dirname, relative, isAbsolute, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash, verify as verifySignature } from 'node:crypto';
+import { verifyNegativeProbes } from './lib/probe-runner.mjs';
 
 const LEVELS = ['L0', 'L1', 'L2', 'L3', 'L4'];
 const args = process.argv.slice(2);
@@ -147,12 +148,18 @@ if (constitution) {
     try {
       const m = json(gateManifest);
       const gates = Array.isArray(m.gates) ? m.gates : [];
+      const schemaPath = 'schemas/software-constitution-gates.v2.json';
+      const schemaValid = file(schemaPath) &&
+        evaluateSchema(schemaPath, gateManifest) === null;
+      record('gate_enforced','challenge-manifest-schema',schemaValid,
+        'T0 gate manifest v2 must validate against mandatory challenge schema');
       const ruleNames = Array.from({length: 6}, (_, i) => 'RULE-' + (i + 1));
       const exact = gates.length === 6 && ruleNames.every(n => gates.filter(g => g.rule === n).length === 1);
       const shape = gates.every(g => Array.isArray(g.argv) && g.argv.length >= 2 &&
         ['node', 'python3'].includes(g.argv[0]) && safePath(g.argv[1]) && file(g.argv[1]) &&
         g.argv.every(v => typeof v === 'string'));
-      const okManifest = record('gate_enforced', 'complete-executable-manifest', exact && shape, 'one safe executable gate per RULE-1..6 required');
+      const okManifest = record('gate_enforced', 'complete-executable-manifest', schemaValid && exact && shape,
+        'six executable gates with independently runnable negative probes required');
       let success = 0;
       if (okManifest) {
         for (const g of gates) {
@@ -160,10 +167,19 @@ if (constitution) {
           if (record('gate_enforced', g.rule, p.status === 0, (p.stderr || p.error?.message || 'gate failed').slice(-800))) success++;
         }
       }
+      const challenged = [];
+      if(okManifest && success===6){
+        for(const g of gates){
+          const proof=verifyNegativeProbes(root,g);
+          challenged.push(record('gate_enforced',g.rule+'-negative-probe',proof.ok,proof.reason));
+        }
+      }
       const workflow = walk('.github/workflows').some(p => /\.ya?ml$/.test(p) &&
         /pull_request\s*:/.test(readFileSync(join(root,p),'utf8')) &&
         /--require-level[= ]L2/.test(readFileSync(join(root,p),'utf8')));
-      allGates = success === 6 && record('gate_enforced', 'blocking-ci-contract', workflow, 'CI must run SCCT at >= L2 on pull requests');
+      allGates = success === 6 && challenged.length === 6 && challenged.every(Boolean) &&
+        record('gate_enforced', 'blocking-ci-contract', workflow,
+          'CI must run SCCT at >= L2 on pull requests');
       if (allGates) level = 'L2';
     } catch(e) { record('gate_enforced', 'manifest-parse', false, e.message); }
   }
@@ -231,7 +247,7 @@ if (constitution) {
 }
 const target = required || 'L1';
 const ok = LEVELS.indexOf(level) >= LEVELS.indexOf(target);
-const verdict = { schema: 'software-constitution.scct-verdict.v1', scct_version:'1.1.0',
+const verdict = { schema: 'software-constitution.scct-verdict.v1', scct_version:'1.2.0',
   commit_sha:entryGitState.head, source_clean_at_entry:entryGitState.ok, level,
   required_level: target, ok, checks, findings };
 console.log(JSON.stringify(verdict, null, 2));

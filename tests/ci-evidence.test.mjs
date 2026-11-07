@@ -20,7 +20,11 @@ function fixture(){
   source_clean_at_entry:true,level:'L2',required_level:'L2',ok:true,
   checks:{gate_enforced:{'blocking-ci-contract':{ok:true}}}
  };
- for(let i=1;i<=6;i++)verdict.checks.gate_enforced['RULE-'+i]={ok:true};
+ for(let i=1;i<=6;i++){
+  verdict.checks.gate_enforced['RULE-'+i]={ok:true};
+  verdict.checks.gate_enforced['RULE-'+i+'-negative-probe']={ok:true};
+ }
+ verdict.checks.gate_enforced['challenge-manifest-schema']={ok:true};
  return {root,sha,verdict};
 }
 function validate(f,options={}){

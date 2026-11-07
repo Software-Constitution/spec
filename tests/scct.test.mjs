@@ -18,9 +18,24 @@ function fixture() {
  mkdirSync(join(root,'schemas'),{recursive:true});
  copyFileSync(join(repo,'schemas/software-constitution-implementation-registry.v1.json'),join(root,'schemas/software-constitution-implementation-registry.v1.json'));
  put(root,'implementation/registry.json',JSON.stringify({schema:'software-constitution.implementation_registry.v1',version:'1.0',concepts:[{concept_id:'test.capability',name:'Test capability',ssot_module:'scripts/gates/one.mjs'}]}));
- for(let i=1;i<=6;i++) put(root,'scripts/gates/'+i+'.mjs', 'process.exit(0);\n');
+ copyFileSync(join(repo,'schemas/software-constitution-gates.v2.json'),
+   join(root,'schemas/software-constitution-gates.v2.json'));
+ for(let i=1;i<=6;i++){
+  put(root,'controls/RULE-'+i+'.json',JSON.stringify({allowed:true}));
+  put(root,'scripts/gates/'+i+'.mjs',
+    "import {readFileSync} from 'node:fs';\n"+
+    "const control=JSON.parse(readFileSync('controls/RULE-"+i+".json','utf8'));\n"+
+    "process.exit(control.allowed===true?0:1);\n");
+ }
  put(root,'scripts/gates/one.mjs','process.exit(0);\n');
- put(root,'constitution/gates.json',JSON.stringify({gates:Array.from({length:6},(_,i)=>({rule:'RULE-'+(i+1),argv:['node','scripts/gates/'+(i+1)+'.mjs']}))}));
+ put(root,'constitution/gates.json',JSON.stringify({
+  schema:'software-constitution.gates.v2',
+  gates:Array.from({length:6},(_,i)=>({
+   rule:'RULE-'+(i+1),argv:['node','scripts/gates/'+(i+1)+'.mjs'],
+   probes:[{kind:'json-set',path:'controls/RULE-'+(i+1)+'.json',
+    pointer:'/allowed',value:false}]
+  }))
+ }));
  put(root,'.github/workflows/ci.yml','on:\n  pull_request:\njobs:\n  check:\n    steps:\n      - run: node scct/scct.mjs . --require-level=L2\n');
  return root;
 }
@@ -109,8 +124,10 @@ test('L3 requires canonical out-of-tree trust and an immutable evaluated HEAD',(
    // restoring HEAD before SCCT reaches the old L3 preflight location.
    put(root,'scripts/gates/1.mjs',
      "import {execFileSync} from 'node:child_process';"+
-     "execFileSync('git',['checkout','HEAD','--','scripts/gates/1.mjs']);"+
-     "process.exit(0);\n");
+     "import {existsSync,readFileSync} from 'node:fs';"+
+     "if(existsSync('.git'))execFileSync('git',['checkout','HEAD','--','scripts/gates/1.mjs']);"+
+     "const c=JSON.parse(readFileSync('controls/RULE-1.json','utf8'));"+
+     "process.exit(c.allowed===true?0:1);\n");
    const laundering=run(root,'L3',opts);
    assert.equal(laundering.code,1,'must reject dirty entry even when gate restores HEAD');
    assert.equal(laundering.verdict.level,'L2');
@@ -150,4 +167,55 @@ test('plain-text deviation, duplicate section and symlinked SSOT are all denied 
   const invalid=run(root,'L1');
   assert.equal(invalid.code,1,'external symlink cannot become canonical SSOT');
  } finally {rmSync(root,{recursive:true,force:true});rmSync(external,{recursive:true,force:true});}
+});
+
+test('always-green gates and forged or absent probes cannot earn L2',()=>{
+ const root=fixture();
+ try{
+  assert.equal(run(root,'L2').code,0,'baseline challenges must pass');
+  put(root,'scripts/gates/1.mjs','process.exit(0);\n');
+  const fake=run(root,'L2');
+  assert.equal(fake.verdict.level,'L1');
+  assert.equal(fake.verdict.checks.gate_enforced['RULE-1-negative-probe'].ok,false);
+  assert.match(fake.verdict.findings.join(' '),/GATE_ACCEPTED_FORBIDDEN_MUTATION/);
+  const manifestPath=join(root,'constitution/gates.json');
+  const m=JSON.parse(readFileSync(manifestPath,'utf8'));
+  m.gates[0].probes=[];
+  put(root,'constitution/gates.json',JSON.stringify(m));
+  assert.equal(run(root,'L2').verdict.level,'L1','missing challenge blocks L2');
+  m.gates[0].probes=[{kind:'append-text',path:'../outside.txt',text:'bad'}];
+  put(root,'constitution/gates.json',JSON.stringify(m));
+  assert.equal(run(root,'L2').verdict.level,'L1','traversal challenge fails closed');
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+
+test('probe runner never modifies a symlinked candidate checkout',()=>{
+ const root=fixture(), external=mkdtempSync(join(tmpdir(),'scct-link-'));
+ try{
+  const link=join(external,'root-alias');
+  symlinkSync(root,link,'dir');
+  const file=join(root,'controls/RULE-1.json');
+  const before=readFileSync(file,'utf8');
+  const verdict=run(link,'L2');
+  assert.equal(verdict.code,0,JSON.stringify(verdict.verdict.findings));
+  assert.equal(readFileSync(file,'utf8'),before,
+   'negative probe must never mutate source through a symlinked root');
+ }finally{rmSync(root,{recursive:true,force:true});rmSync(external,{recursive:true,force:true});}
+});
+test('probe cannot mutate its own executable via a path alias',()=>{
+ const root=fixture();
+ try{
+  const manifest=join(root,'constitution/gates.json');
+  const data=JSON.parse(readFileSync(manifest,'utf8'));
+  data.gates[0].probes=[{
+   kind:'append-text',path:'./scripts/gates/1.mjs',
+   text:'\n@@broken imported syntax@@\n'
+  }];
+  put(root,'constitution/gates.json',JSON.stringify(data));
+  const result=run(root,'L2');
+  assert.equal(result.code,1);
+  assert.equal(result.verdict.level,'L1');
+  assert.match(result.verdict.findings.join(' '),/PROBE_MUTATES_GATE_EXECUTABLE/);
+ }finally{rmSync(root,{recursive:true,force:true});}
 });

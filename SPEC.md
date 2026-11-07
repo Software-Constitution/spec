@@ -2,7 +2,7 @@
 
 # Software Constitution Standard
 
-**Version:** 1.1 (Draft) · **Status:** RFC · **Adopted:** 2026-05-19
+**Version:** 1.2 (Draft) · **Status:** RFC · **Adopted:** 2026-05-19
 **Home:** <https://softwareconstitution.com> · **License:** Apache-2.0
 
 ---
@@ -278,3 +278,7 @@ own `LICENSE` and patent disclosures, separate from this document.
 ### Formal verification boundary (v1.1 pilot)
 
 The independent Lean 4 package proves abstract conformance monotonicity and release preconditions. It is **not a proof of the JavaScript implementation**. A source-to-model refinement claim requires additional independently checked obligations. The Aeneas Rust translator is an optional proof adapter for supported safe sequential Rust, not part of the language-neutral compliance definition.
+
+### T0 negative challenge contract (v1.2)
+
+L2 execution witnesses MUST include a v2 gate manifest validated against `schemas/software-constitution-gates.v2.json`. Every rule MUST carry a reproducible, non-no-op, source-bound negative probe which passes an unmutated control and causes the corresponding executable gate to fail after a declared forbidden mutation. The challenge verifier MUST run on an isolated copy, reject unresolvable input, deny unsafe paths, and record a per-rule outcome in the conformance verdict and CI evidence. A gate returning `0` to both baseline and forbidden mutation MUST NOT qualify for L2. This local condition cannot replace enforced GitHub status checks, independent provenance or production attestations.

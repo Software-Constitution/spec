@@ -1,6 +1,6 @@
 {
   "name": "scct",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Software Constitution Conformance Test — Apache 2.0 reference CLI",
   "type": "module",
   "bin": {
@@ -21,7 +21,8 @@
   },
   "files": [
     "scct.mjs",
-    "README.md"
+    "README.md",
+    "lib/"
   ],
   "private": false
 }

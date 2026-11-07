@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://softwareconstitution.com/schemas/software-constitution-gates.v2.json",
+  "title": "Software Constitution T0 executable challenge manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "gates"
+  ],
+  "properties": {
+    "schema": {
+      "const": "software-constitution.gates.v2"
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule",
+          "argv",
+          "probes"
+        ],
+        "properties": {
+          "rule": {
+            "enum": [
+              "RULE-1",
+              "RULE-2",
+              "RULE-3",
+              "RULE-4",
+              "RULE-5",
+              "RULE-6"
+            ]
+          },
+          "argv": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "probes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "path",
+                    "pointer",
+                    "value"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "json-set"
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "pointer": {
+                      "type": "string",
+                      "pattern": "^/"
+                    },
+                    "value": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "path",
+                    "pointer",
+                    "value"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "json-append"
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "pointer": {
+                      "type": "string",
+                      "pattern": "^/"
+                    },
+                    "value": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "path",
+                    "find",
+                    "replace"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "replace-text"
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "find": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "replace": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "path",
+                    "text"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "append-text"
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
