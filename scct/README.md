@@ -11,3 +11,7 @@ L3 **additionally** requires an **out-of-tree** attestation (`--attestation=/abs
 L4 additionally requires `platform/manifest-index.json` listing JSON manifest paths and `platform/meta-index.generated.json` whose `surfaces` bijectively correspond to the declared manifest surfaces, with all paths resolvable. This is a structural bijection check, not a proof of complete runtime discovery.
 
 Evidence collection, trusted key custody, external deployment reconciliation and independently verified CI provenance are required before claiming full production-grade governance. No badge should exceed its measured scope.
+
+### Immutable evaluation and independent path authority
+
+The L3 evaluator now canonicalizes the candidate root and both externally supplied files with `realpath` and rejects in-repository paths, path aliases and symbolic-link-based provenance escapes. A valid Git checkout must have no tracked changes or untracked files at the time of L3 evaluation; SCCT rechecks after running candidate gates. This protects against accepting an attestation for a different working tree, but it does **not** make running untrusted gates safe: perform SCCT in an isolated immutable CI environment, without privileged credentials. The real production trust-root lifecycle and branch-protection requirements remain explicit separate acceptance gates.
