@@ -6,7 +6,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, dirname, relative, isAbsolute } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, verify as verifySignature } from 'node:crypto';
 
 const LEVELS = ['L0', 'L1', 'L2', 'L3', 'L4'];
 const args = process.argv.slice(2);
@@ -116,11 +116,12 @@ if (constitution) {
     } catch(e) { record('gate_enforced', 'manifest-parse', false, e.message); }
   }
   if (allGates) {
-    const path = 'constitution/evidence/attestation.json';
+    const attestation = arg('attestation');
+    const trust = arg('trusted-key');
     let audited = false;
-    if (record('self_governed', 'attestation-present', file(path), 'replayable evidence required')) {
+    if (record('self_governed', 'external-evidence', !!attestation && isAbsolute(attestation) && existsSync(attestation) && !attestation.startsWith(root + '/'), 'external attestation --attestation=/absolute/path required')) {
       try {
-        const a = json(path);
+        const a = JSON.parse(readFileSync(attestation, 'utf8'));
         const git = spawnSync('git',['rev-parse','HEAD'], {cwd: root, encoding:'utf8'});
         const head = git.status === 0 ? git.stdout.trim() : null;
         const bound = /^[a-f0-9]{40}$/.test(a.commit_sha || '') && head === a.commit_sha;
@@ -133,8 +134,19 @@ if (constitution) {
           replay = replay && e.prev_hash === prev && hash === e.hash && e.commit_sha === head;
           prev = e.hash;
         }
-        audited = record('self_governed','head-bound',bound,'attestation must bind to current git HEAD') &&
-          record('self_governed','replayable-chain',replay,'invalid or empty SHA-256 evidence chain');
+        const trusted = !!trust && isAbsolute(trust) && existsSync(trust) && !trust.startsWith(root + '/');
+        let authenticated = false;
+        if (trusted && typeof a.signature === 'string') {
+          try {
+            authenticated = verifySignature(null,
+              Buffer.from(JSON.stringify({commit_sha:a.commit_sha,events:a.events})),
+              readFileSync(trust), Buffer.from(a.signature,'base64'));
+          } catch { authenticated = false; }
+        }
+        const b1 = record('self_governed','head-bound',bound,'attestation must bind to current git HEAD');
+        const b2 = record('self_governed','replayable-chain',replay,'invalid or empty SHA-256 evidence chain');
+        const b3 = record('self_governed','trusted-ed25519-signature',trusted && authenticated,'external trust root and valid Ed25519 signature required');
+        audited = b1 && b2 && b3;
       } catch(e) { record('self_governed','attestation-parse',false,e.message); }
     }
     if (audited) level = 'L3';
