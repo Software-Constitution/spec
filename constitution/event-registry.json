@@ -1,0 +1,10 @@
+{
+  "schema": "software-constitution.event-registry.v1",
+  "events": [
+    {
+      "id": "software-constitution.scct-verdict.v1",
+      "emitter": "scct/scct.mjs",
+      "destination": "stdout/CI-artifact"
+    }
+  ]
+}

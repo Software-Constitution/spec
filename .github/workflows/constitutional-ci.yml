@@ -1,0 +1,42 @@
+name: Constitutional CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deterministic schema validator
+        run: python -m pip install -r requirements-verification.txt
+      - name: Syntax and negative tests
+        run: |
+          node --check scct/scct.mjs
+          node --check kit/lib/gate-runner.mjs
+          node --test tests/*.test.mjs
+      - name: Self conformance (no unverified L3/L4 claim)
+        run: node scct/scct.mjs . --require-level=L2 | tee scct-verdict.json
+      - name: Export verdict
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scct-verdict
+          path: scct-verdict.json
+          if-no-files-found: warn
+  lean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          build: 'true'

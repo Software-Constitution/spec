@@ -1,0 +1,26 @@
+{
+  "schema": "software-constitution.implementation_registry.v1",
+  "version": "1.1",
+  "concepts": [
+    {
+      "concept_id": "scct.conformance",
+      "name": "Conformance evaluator",
+      "ssot_module": "scct/scct.mjs"
+    },
+    {
+      "concept_id": "kit.enforcement",
+      "name": "Kit gate runner",
+      "ssot_module": "kit/lib/gate-runner.mjs"
+    },
+    {
+      "concept_id": "constitutional.gates",
+      "name": "Six constitutional reference gates",
+      "ssot_module": "scripts/gates/constitutional-gate.mjs"
+    },
+    {
+      "concept_id": "zero.deviation",
+      "name": "Reference zero deviation gate",
+      "ssot_module": "gates/zero-deviation-mandate.mjs"
+    }
+  ]
+}
