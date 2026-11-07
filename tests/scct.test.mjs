@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, rmSync, symlinkSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve, dirname } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { join, resolve, dirname, basename } from 'node:path';
+import { spawnSync, execFileSync } from 'node:child_process';
+import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 function put(root,p,content) { const x=join(root,p); mkdirSync(dirname(x),{recursive:true}); writeFileSync(x,content); }
@@ -23,8 +24,8 @@ function fixture() {
  put(root,'.github/workflows/ci.yml','on:\n  pull_request:\njobs:\n  check:\n    steps:\n      - run: node scct/scct.mjs . --require-level=L2\n');
  return root;
 }
-function run(root,requireLevel='L2') {
- const p=spawnSync('node',[join(repo,'scct/scct.mjs'),root,'--require-level='+requireLevel],{encoding:'utf8'});
+function run(root,requireLevel='L2',options=[]) {
+ const p=spawnSync('node',[join(repo,'scct/scct.mjs'),root,'--require-level='+requireLevel,...options],{encoding:'utf8'});
  assert.ok(p.stdout,'CLI emits JSON');
  return {code:p.status, verdict:JSON.parse(p.stdout),stderr:p.stderr};
 }
@@ -79,4 +80,43 @@ test('empty kit manifest does not pass',()=>{
   const p=spawnSync('node',['--input-type=module','-e',testCode],{encoding:'utf8'});
   assert.equal(p.status,1);
  } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+
+test('L3 requires canonical out-of-tree trust and an immutable evaluated HEAD',()=>{
+ const root=fixture();
+ const ext=mkdtempSync(join(tmpdir(),'scct-trust-'));
+ try{
+   const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
+   git('init','-q');
+   git('add','.');
+   git('-c','user.name=Conformance Test','-c','user.email=tests@example.invalid','commit','-qm','locked test fixture');
+   const head=git('rev-parse','HEAD');
+   const {publicKey,privateKey}=generateKeyPairSync('ed25519');
+   const trust=join(ext,'authority.pem');
+   writeFileSync(trust,publicKey.export({type:'spki',format:'pem'}));
+   const event={type:'scct.conformance',decision:'pass',commit_sha:head,prev_hash:'GENESIS'};
+   const hashed={...event,hash:createHash('sha256').update(JSON.stringify(event)).digest('hex')};
+   const a={commit_sha:head,events:[hashed]};
+   a.signature=sign(null,Buffer.from(JSON.stringify({commit_sha:a.commit_sha,events:a.events})),privateKey).toString('base64');
+   const attestation=join(ext,'attestation.json');
+   writeFileSync(attestation,JSON.stringify(a));
+   const opts=['--attestation='+attestation,'--trusted-key='+trust];
+   const good=run(root,'L3',opts);
+   assert.equal(good.code,0,JSON.stringify(good.verdict.findings));
+   assert.equal(good.verdict.level,'L3');
+   put(root,'README.md','uncommitted payload\n');
+   const dirty=run(root,'L3',opts);
+   assert.equal(dirty.code,1);
+   assert.equal(dirty.verdict.level,'L2');
+   rmSync(join(root,'README.md'));
+   symlinkSync(trust,join(root,'authority-alias.pem'));
+   const badAlias=run(root,'L3',['--attestation='+attestation,
+       '--trusted-key='+join(root,'..',basename(root),'authority-alias.pem')]);
+   assert.equal(badAlias.code,1);
+   assert.equal(badAlias.verdict.level,'L2');
+ } finally {
+   rmSync(root,{recursive:true,force:true});
+   rmSync(ext,{recursive:true,force:true});
+ }
 });
