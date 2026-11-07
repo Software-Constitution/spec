@@ -1,9 +1,11 @@
 {
   "name": "scct",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Software Constitution Conformance Test — Apache 2.0 reference CLI",
   "type": "module",
-  "bin": { "scct": "./scct.mjs" },
+  "bin": {
+    "scct": "./scct.mjs"
+  },
   "main": "scct.mjs",
   "license": "Apache-2.0",
   "keywords": [
@@ -14,5 +16,12 @@
     "engineering-standards"
   ],
   "homepage": "https://softwareconstitution.com",
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "scct.mjs",
+    "README.md"
+  ],
+  "private": false
 }

@@ -21,3 +21,25 @@ The L3 evaluator now canonicalizes the candidate root and both externally suppli
 SCCT captures the Git HEAD/clean working-tree state **at process entry, before parsing source or executing any gate**. L3 requires an authenticated attestation of that initial HEAD and another clean, identical HEAD after gate execution. A gate that self-restores dirty inputs during evaluation cannot upgrade them to L3. Candidate code still runs in the invoking process's OS sandbox; only independent runner isolation can bound transient side effects.
 
 Every referenced file, manifest and executable is resolved canonically; symlink escapes and path traversal are rejected. The Active Deviations section is empty only when it contains whitespace or the exact `_(none)_` marker; unstructured text, comments and duplicate sections fail in both JS/Python gates. **Local L2 is not proof of protected GitHub merges**: repository rulesets must separately require the actual CI checks with a verified blocked-merge negative control. Public key proximity alone does not establish independent trust custody.
+
+### Reproducible consumer packaging (no registry publication assumed)
+
+The reference CLI is distributed as the `scct` npm package. `bin.scct`
+points to the actual `scct.mjs` shebang entrypoint. To validate package
+installability **without network, registry access or release credentials**:
+
+```sh
+node --test tests/package-smoke.test.mjs
+```
+
+The test runs `npm pack --offline`, installs the generated archive in a fresh
+consumer directory using `npm install --offline`, invokes the installed
+`scct` executable against this repository at L2, and confirms an empty
+candidate fails L1. This proves the local package is loadable and preserves
+deny-by-default behavior. It does **not** claim an npm registry version is
+published or that GitHub merge rules are protected.
+
+The current CLI requires Node.js >=20, `python3` and the separately pinned
+`jsonschema` Python package for schema validation. Before using on a new
+CI runner, provision `requirements-verification.txt`. A missing verifier
+remains a hard L1/L2 failure.
