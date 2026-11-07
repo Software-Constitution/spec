@@ -27,7 +27,8 @@ function validate(f,options={}){
  const env={...process.env,GITHUB_REPOSITORY:'Software-Constitution/spec',
   GITHUB_SHA:f.sha,GITHUB_RUN_ID:'90001',GITHUB_RUN_ATTEMPT:'1',
   SCCT_PREVIOUS_JOB_STATUS:'success',...(options.env||{})};
- writeFileSync(join(f.root,'scct-verdict.json'),JSON.stringify(options.verdict||f.verdict));
+ writeFileSync(join(f.root,'scct-verdict.json'),
+  JSON.stringify(Object.hasOwn(options,'verdict')?options.verdict:f.verdict));
  const p=spawnSync(process.execPath,[tool],{cwd:f.root,env,encoding:'utf8'});
  const result=JSON.parse(readFileSync(join(f.root,'ci-evidence.json'),'utf8'));
  unlinkSync(join(f.root,'ci-evidence.json'));
@@ -43,6 +44,13 @@ test('CI evidence requires exact SHA, six gates, clean source and prior success'
   assert.equal(good.receipt.authenticated_external_signer,false);
   assert.equal(validate(f,{env:{GITHUB_SHA:'0'.repeat(40)}}).receipt.status,'HELD');
   assert.equal(validate(f,{env:{SCCT_PREVIOUS_JOB_STATUS:'failure'}}).status,1);
+  // Codex P2: valid JSON primitive is NOT valid conformance evidence.
+  for(const primitive of [null,false,0,'',[]]){
+    const r=validate(f,{verdict:primitive});
+    assert.equal(r.status,1,'primitive JSON cannot certify');
+    assert.equal(r.receipt.status,'HELD');
+    assert.ok(r.receipt.findings.includes('SCCT_VERDICT_NOT_OBJECT'));
+  }
   const bad=structuredClone(f.verdict);
   bad.checks.gate_enforced['RULE-4'].ok=false;
   assert.equal(validate(f,{verdict:bad}).receipt.status,'HELD');

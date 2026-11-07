@@ -37,7 +37,9 @@ try{
   bytes=readFileSync(input);
   verdict=JSON.parse(bytes.toString('utf8'));
 }catch{errors.push('MISSING_OR_INVALID_SCCT_VERDICT')}
-if(verdict){
+if(!verdict||typeof verdict!=='object'||Array.isArray(verdict)){
+  errors.push('SCCT_VERDICT_NOT_OBJECT');
+}else{
   if(verdict.schema!=='software-constitution.scct-verdict.v1'||
     verdict.commit_sha!==head||verdict.source_clean_at_entry!==true||
     verdict.level!=='L2'||verdict.required_level!=='L2'||verdict.ok!==true)
