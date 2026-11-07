@@ -119,7 +119,7 @@ async function getAjv() {
 export async function checkRegistries(manifest, repoRoot) {
   const violations = [];
   const warnings = [];
-  const ajv = await getAjv();
+  const ajv = (manifest.registries || []).some(r => !!r.schema) ? await getAjv() : null;
   for (const reg of manifest.registries || []) {
     const sourcePath = path.join(repoRoot, reg.source);
     if (!existsSync(sourcePath)) {
