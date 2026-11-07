@@ -6,8 +6,9 @@
  * Contract:
  *   - Read `constitution/DEVIATIONS.md` (path configurable via $SCS_DEVIATIONS).
  *   - Find the `## Active deviations` heading.
- *   - Between that heading and the next ## heading, count `###`
- *     headings. Any count > 0 = FAIL.
+ *   - The active section MUST be empty. Whitespace and the exact
+ *     `_(none)_` marker alone are permitted. Headings, unstructured
+ *     entries, duplicate active sections and comments all FAIL.
  *
  * Exit code: 0 = pass, 1 = fail.
  *
@@ -25,28 +26,16 @@ if (!existsSync(PATH)) {
 }
 
 const lines = readFileSync(PATH, "utf8").split(/\r?\n/);
-let inActive = false;
-let activeStart = -1;
-let activeEnd = lines.length;
-
-for (let i = 0; i < lines.length; i++) {
-  if (/^##\s+Active deviations\s*$/i.test(lines[i])) {
-    inActive = true;
-    activeStart = i;
-    continue;
-  }
-  if (inActive && /^##\s+(?!#)/.test(lines[i])) {
-    activeEnd = i;
-    break;
-  }
-}
-
-if (activeStart < 0) {
-  console.error(`[FAIL] zero-deviation-mandate — ${PATH} has no "## Active deviations" section`);
+const starts = lines.flatMap((line, i) =>
+  /^##\s+Active deviations\s*$/i.test(line) ? [i] : []);
+if (starts.length !== 1) {
+  console.error(`[FAIL] zero-deviation-mandate — ${PATH} must have exactly one active section`);
   process.exit(1);
 }
-
-const entries = lines.slice(activeStart + 1, activeEnd).filter((l) => /^###\s+\S/.test(l));
+const start = starts[0] + 1;
+const end = lines.findIndex((line, i) => i >= start && /^##\s+(?!#)/.test(line));
+const entries = lines.slice(start, end < 0 ? undefined : end)
+  .map((line) => line.trim()).filter((line) => line && line !== '_(none)_');
 
 if (entries.length > 0) {
   console.error(`[FAIL] zero-deviation-mandate — ${entries.length} active deviation(s) declared in ${PATH}:`);

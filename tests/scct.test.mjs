@@ -105,6 +105,16 @@ test('L3 requires canonical out-of-tree trust and an immutable evaluated HEAD',(
    const good=run(root,'L3',opts);
    assert.equal(good.code,0,JSON.stringify(good.verdict.findings));
    assert.equal(good.verdict.level,'L3');
+   // Codex P1 regression: uncommitted gate launders its own modification by
+   // restoring HEAD before SCCT reaches the old L3 preflight location.
+   put(root,'scripts/gates/1.mjs',
+     "import {execFileSync} from 'node:child_process';"+
+     "execFileSync('git',['checkout','HEAD','--','scripts/gates/1.mjs']);"+
+     "process.exit(0);\n");
+   const laundering=run(root,'L3',opts);
+   assert.equal(laundering.code,1,'must reject dirty entry even when gate restores HEAD');
+   assert.equal(laundering.verdict.level,'L2');
+   assert.equal(git('status','--porcelain'),'','gate actually restored committed content');
    put(root,'README.md','uncommitted payload\n');
    const dirty=run(root,'L3',opts);
    assert.equal(dirty.code,1);
@@ -119,4 +129,25 @@ test('L3 requires canonical out-of-tree trust and an immutable evaluated HEAD',(
    rmSync(root,{recursive:true,force:true});
    rmSync(ext,{recursive:true,force:true});
  }
+});
+
+test('plain-text deviation, duplicate section and symlinked SSOT are all denied at T0',()=>{
+ const root=fixture(), external=mkdtempSync(join(tmpdir(),'scct-foreign-'));
+ try {
+  assert.equal(run(root,'L1').code,0);
+  for (const bad of [
+    '## Active deviations\nTemporary exception allowed by operator\n## Historical\n',
+    '## Active deviations\n_(none)_\n## Active deviations\n_(none)_\n'
+  ]) {
+    put(root,'constitution/DEVIATIONS.md',bad.replaceAll('\\n','\n'));
+    assert.equal(run(root,'L1').code,1,'unstructured/duplicate deviations fail');
+  }
+  put(root,'constitution/DEVIATIONS.md','## Active deviations\n_(none)_\n## Historical\n');
+  const owned=join(root,'scripts/gates/one.mjs');
+  rmSync(owned);
+  put(external,'foreign.mjs','process.exit(0);');
+  symlinkSync(join(external,'foreign.mjs'),owned);
+  const invalid=run(root,'L1');
+  assert.equal(invalid.code,1,'external symlink cannot become canonical SSOT');
+ } finally {rmSync(root,{recursive:true,force:true});rmSync(external,{recursive:true,force:true});}
 });

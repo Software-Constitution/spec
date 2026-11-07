@@ -51,6 +51,10 @@ function immutableHead() {
   return { ok: normal && rootExact && unchanged, head: normal ? head.stdout.trim() : null };
 }
 
+// Capture identity BEFORE parsing candidate input or executing any of its
+// gates. A gate that rewrites itself and restores HEAD cannot launder a dirty
+// preflight into authenticated L3 evidence.
+const entryGitState = immutableHead();
 const checks = { structural: {}, gate_enforced: {}, self_governed: {}, platform_bijected: {} };
 const findings = [];
 const record = (group, id, ok, reason) => {
@@ -58,13 +62,32 @@ const record = (group, id, ok, reason) => {
   if (!ok) findings.push(group + '/' + id + ': ' + (reason || 'failed'));
   return !!ok;
 };
-function file(path) { return existsSync(join(root, path)) && statSync(join(root, path)).isFile(); }
-function dir(path) { return existsSync(join(root, path)) && statSync(join(root, path)).isDirectory(); }
-function json(path) { return JSON.parse(readFileSync(join(root, path), 'utf8')); }
-function safePath(path) {
-  if (typeof path !== 'string' || !path || isAbsolute(path)) return false;
-  const full = resolve(root, path);
-  return full.startsWith(root + '/') && !path.split('/').includes('..');
+// Every evaluated input, gate command and referenced artefact must remain
+// under the canonical candidate root even across symlinks/path aliases.
+function safePath(p) {
+  if (typeof p !== 'string' || !p || isAbsolute(p) ||
+      p.split(/[\\/]/).includes('..')) return false;
+  try {
+    const absolute = resolve(root, p);
+    if (!inside(root, absolute)) return false;
+    return inside(canonicalRoot, realpathSync(absolute));
+  } catch { return false; }
+}
+function file(p) { return safePath(p) && statSync(join(root, p)).isFile(); }
+function dir(p) { return safePath(p) && statSync(join(root, p)).isDirectory(); }
+function json(p) {
+  if (!file(p)) throw Error('missing or escaped canonical file: ' + p);
+  return JSON.parse(readFileSync(join(root, p), 'utf8'));
+}
+function activeDeviationRows(markdown) {
+  const lines = markdown.split(/\r?\n/);
+  const headings = lines.flatMap((line,i) =>
+    /^##\s+Active deviations\s*$/i.test(line) ? [i] : []);
+  if (headings.length !== 1) return null;
+  const start = headings[0] + 1;
+  const stop = lines.findIndex((line,i) => i >= start && /^##\s+(?!#)/.test(line));
+  return lines.slice(start, stop < 0 ? undefined : stop)
+    .map(line => line.trim()).filter(line => line && line !== '_(none)_');
 }
 function walk(d, depth = 0) {
   if (depth > 7 || !dir(d)) return [];
@@ -95,8 +118,8 @@ if (constitution) {
   const ruleOk = names.every(n => indexText.toLowerCase().includes(n.toLowerCase()));
   record('structural', 'six-rule-classes', ruleOk, 'all six rule class declarations required');
   const deviations = file(mandatory[1]) ? readFileSync(join(root, mandatory[1]), 'utf8') : '';
-  const activeMatch = deviations.match(/^## Active deviations\s*$([\s\S]*?)(?=^## |$(?![\s\S]))/mi);
-  const emptyActive = !!activeMatch && !/^###\s+\S/m.test(activeMatch[1]);
+  const activeRows = activeDeviationRows(deviations);
+  const emptyActive = activeRows !== null && activeRows.length === 0;
   record('structural', 'zero-active-deviations', emptyActive, 'active deviation entries forbidden');
   const registryPaths = walk('.').filter(p => /(^|\/)implementation\/registry\.json$/.test(p));
   const unique = record('structural', 'one-implementation-registry', registryPaths.length === 1, 'expected exactly one implementation/registry.json, found ' + registryPaths.length);
@@ -151,7 +174,7 @@ if (constitution) {
     if (record('self_governed', 'external-evidence', independentlyHeldFile(attestation), 'attestation must be independent, regular, canonical, external file')) {
       try {
         const a = JSON.parse(readFileSync(attestation, 'utf8'));
-        const sourceBefore = immutableHead();
+        const sourceBefore = entryGitState;
         const head = sourceBefore.head;
         const bound = sourceBefore.ok && head === a.commit_sha;
         const events = Array.isArray(a.events) ? a.events : [];
@@ -177,7 +200,7 @@ if (constitution) {
         const b3 = record('self_governed','trusted-ed25519-signature',trusted && authenticated,'external trust root and valid Ed25519 signature required');
         const after = immutableHead();
         const b4 = record('self_governed','immutable-source-verified',sourceBefore.ok && after.ok && after.head === head,
-          'working tree must remain clean and head-bound before and after gate execution');
+          'source must be clean before any gate executes and remain head-bound afterward');
         audited = b1 && b2 && b3 && b4;
       } catch(e) { record('self_governed','attestation-parse',false,e.message); }
     }
