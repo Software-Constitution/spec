@@ -45,7 +45,13 @@ if(!verdict||typeof verdict!=='object'||Array.isArray(verdict)){
     verdict.level!=='L2'||verdict.required_level!=='L2'||verdict.ok!==true)
     errors.push('VERDICT_NOT_BOUND_TO_CLEAN_L2_SOURCE');
   const gates=verdict.checks?.gate_enforced;
-  for(let i=1;i<=6;i++)if(gates?.['RULE-'+i]?.ok!==true)errors.push('MISSING_RULE_'+i);
+  for(let i=1;i<=6;i++){
+    if(gates?.['RULE-'+i]?.ok!==true)errors.push('MISSING_RULE_'+i);
+    if(gates?.['RULE-'+i+'-negative-probe']?.ok!==true)
+      errors.push('MISSING_NEGATIVE_CHALLENGE_'+i);
+  }
+  if(gates?.['challenge-manifest-schema']?.ok!==true)
+    errors.push('GATE_CHALLENGE_SCHEMA_UNVERIFIED');
   if(gates?.['blocking-ci-contract']?.ok!==true)errors.push('MISSING_BLOCKING_CI_DECLARATION');
 }
 const receipt={

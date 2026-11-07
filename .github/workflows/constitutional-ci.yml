@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -22,6 +24,7 @@ jobs:
       - name: Syntax and negative tests
         run: |
           node --check scct/scct.mjs
+          node --check scct/lib/probe-runner.mjs
           node --check kit/lib/gate-runner.mjs
           node --test tests/*.test.mjs
       - name: Self conformance (no unverified L3/L4 claim)
