@@ -23,7 +23,7 @@
 > principles at CI time, with versioned rules, an implementation
 > registry, and drift gates that block merges on violation.
 
-**Status:** v1.0 · **License:** Apache-2.0 · **Home:** <https://softwareconstitution.com>
+**Status:** v1.1 draft · **License:** Apache-2.0 · **Home:** <https://softwareconstitution.com>
 
 ---
 
@@ -109,18 +109,19 @@ The SCCT emits one of:
 - `L0` — no constitution found
 - `L1` — structural conformance (artefacts exist, schemas validate)
 - `L2` — gate-enforced (every rule has a passing gate)
-- `L3` — self-governed (project emits its own audit chain)
-- `L4` — platform-bijected (every named surface tracked in a generated meta-index)
+- `L3` — authenticated self-governance (out-of-tree evidence signed by a trusted issuer)
+- `L4` — platform-bijected (L3 plus bidirectional manifest/meta-index reconciliation)
 
 ---
 
-## The five rule classes (every constitution MUST address)
+## The six rule classes (every constitution MUST address)
 
 1. **Zero Competing Systems** (Single-Implementation Mandate)
 2. **Zero Repo ↔ Prod Drift**
 3. **Zero Stubs / Placeholders / Mocks** reachable from production
 4. **Self-Governance + Canonical-First**
 5. **Zero-Deviation Mandate** — Active deviations are a regression
+6. **Coherent Integration / No Orphans** — every registered component resolves bidirectionally
 
 Naming and numbering of individual rules is project-specific; the
 existence of at least one rule per class is the conformance bar.
@@ -153,7 +154,7 @@ The **KYE Protocol™** monorepo at
 conformer. It demonstrates L4 conformance with ~40
 constitutional documents, ~85 CI gates, ~1,700 named surfaces tracked
 in a generated meta-index, and the full Implementation Registry pattern.
-The standard was extracted from KYE Protocol™'s internal constitution;
+These historical counts are reference-adopter claims, not independently verified SCCT 1.1 attestations. The standard was extracted from KYE Protocol™'s internal constitution;
 KYE remains the reference conformer.
 
 ---
@@ -188,3 +189,8 @@ patent-safe — the Apache 2.0 license grants explicit patent rights
 for the published surface. The reference conformer
 (KYE Protocol™) carries its own trademarks and patent portfolio,
 licensed separately.
+
+
+## Current reference implementation (v1.1 draft)
+
+The SCCT CLI's `--require-level=L2` flag is fail-closed. L2 runs all six declared gates, not just filename searches. L3 and L4 **require external, Ed25519-authenticated, commit-bound evidence**; self-issued JSON does not qualify. This spec repository dogfoods its six gates in [Constitutional CI](./.github/workflows/constitutional-ci.yml) and compiles [abstract Lean 4 proofs](./proofs/Constitution.lean). The Lean proofs do not yet establish implementation-to-model refinement, and an Aeneas Rust translation has not been executed. See [SCCT details](./scct/README.md).
