@@ -108,7 +108,7 @@ test('L3 requires canonical out-of-tree trust and an immutable evaluated HEAD',(
    // Codex P1 regression: uncommitted gate launders its own modification by
    // restoring HEAD before SCCT reaches the old L3 preflight location.
    put(root,'scripts/gates/1.mjs',
-     "const {execFileSync}=require('node:child_process');"+
+     "import {execFileSync} from 'node:child_process';"+
      "execFileSync('git',['checkout','HEAD','--','scripts/gates/1.mjs']);"+
      "process.exit(0);\n");
    const laundering=run(root,'L3',opts);
