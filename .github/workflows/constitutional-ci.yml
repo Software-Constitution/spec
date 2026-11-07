@@ -25,9 +25,19 @@ jobs:
           node --check kit/lib/gate-runner.mjs
           node --test tests/*.test.mjs
       - name: Self conformance (no unverified L3/L4 claim)
+        shell: bash
         run: |
-          node scct/scct.mjs . --require-level=L2 > scct-verdict.json
+          set -euo pipefail
+          # Shell redirection MUST NOT create an untracked file inside the
+          # candidate checkout before SCCT samples the immutable source.
+          out="$(mktemp "${RUNNER_TEMP}/scct-verdict.XXXXXX")"
+          set +e
+          node scct/scct.mjs . --require-level=L2 > "$out"
+          outcome=$?
+          set -e
+          cp "$out" scct-verdict.json
           cat scct-verdict.json
+          exit "$outcome"
       - name: Emit exact-source T0 CI receipt (held on any earlier failure)
         if: always()
         env:
