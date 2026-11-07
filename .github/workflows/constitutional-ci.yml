@@ -25,7 +25,9 @@ jobs:
           node --check kit/lib/gate-runner.mjs
           node --test tests/*.test.mjs
       - name: Self conformance (no unverified L3/L4 claim)
-        run: node scct/scct.mjs . --require-level=L2 | tee scct-verdict.json
+        run: |
+          node scct/scct.mjs . --require-level=L2 > scct-verdict.json
+          cat scct-verdict.json
       - name: Export verdict
         if: always()
         uses: actions/upload-artifact@v4
@@ -37,6 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize pinned Lake manifest
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          $HOME/.elan/bin/lake update
       - uses: leanprover/lean-action@v1
         with:
           build: 'true'
