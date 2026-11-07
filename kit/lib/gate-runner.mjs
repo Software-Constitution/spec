@@ -92,9 +92,9 @@ export function checkSingleValueConcepts(manifest, repoRoot) {
       const text = readFileSync(path.join(repoRoot, rel), 'utf8');
       let m;
       re.lastIndex = 0;
-      while ((m = re.exec(text)) !== null) values.add(m[1] ?? m[0]);
+      while ((m = re.exec(text)) !== null) { if (!m[0].length) throw new Error('zero-length concept match: ' + concept.id); values.add(m[1] ?? m[0]); }
     }
-    if (values.size > 1) {
+    if (values.size !== 1) {
       violations.push(
         `concept "${concept.id}": ${values.size} distinct values across ${files.size} file(s) — ${[...values].join(', ')}`,
       );
@@ -111,15 +111,15 @@ async function getAjv() {
     const ajv = new Ajv({ allErrors: true, strict: false });
     addFormats(ajv);
     return ajv;
-  } catch {
-    return null;
+  } catch (e) {
+    throw new Error('JSON Schema validation is mandatory; install ajv and ajv-formats: ' + e.message);
   }
 }
 
 export async function checkRegistries(manifest, repoRoot) {
   const violations = [];
   const warnings = [];
-  const ajv = await getAjv();
+  const ajv = (manifest.registries || []).some(r => !!r.schema) ? await getAjv() : null;
   for (const reg of manifest.registries || []) {
     const sourcePath = path.join(repoRoot, reg.source);
     if (!existsSync(sourcePath)) {
@@ -130,13 +130,11 @@ export async function checkRegistries(manifest, repoRoot) {
       const schemaPath = path.join(repoRoot, reg.schema);
       if (!existsSync(schemaPath)) {
         violations.push(`registry "${reg.id}": schema not found — ${reg.schema}`);
-      } else if (ajv) {
+      } else {
         const validate = ajv.compile(JSON.parse(readFileSync(schemaPath, 'utf8')));
         if (!validate(JSON.parse(readFileSync(sourcePath, 'utf8')))) {
           violations.push(`registry "${reg.id}": source fails schema — ${ajv.errorsText(validate.errors)}`);
         }
-      } else {
-        warnings.push(`registry "${reg.id}": ajv not installed — schema validation skipped`);
       }
     }
     const generatorPath = path.join(repoRoot, reg.generator);
@@ -163,6 +161,9 @@ export async function checkRegistries(manifest, repoRoot) {
 export async function runAll(manifestPath, repoRootOverride) {
   const repoRoot = repoRootOverride || path.dirname(path.resolve(manifestPath));
   const manifest = loadManifest(manifestPath);
+  if (!(manifest.registries?.length || manifest.single_value_concepts?.length)) {
+    return { ok: false, violations: ['empty constitutional gate manifest: no enforceable checks'], warnings: [], manifest };
+  }
   const conceptViolations = checkSingleValueConcepts(manifest, repoRoot);
   const { violations: registryViolations, warnings } = await checkRegistries(manifest, repoRoot);
   const violations = [...conceptViolations, ...registryViolations];

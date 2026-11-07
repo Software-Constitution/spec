@@ -1,0 +1,6 @@
+{
+  "schema": "software-constitution.deployment-scope.v1",
+  "repository": "Software-Constitution/spec",
+  "mode": "specification-only",
+  "deployments": []
+}

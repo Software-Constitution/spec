@@ -1,0 +1,53 @@
+{
+  "schema": "software-constitution.gates.v1",
+  "gates": [
+    {
+      "rule": "RULE-1",
+      "argv": [
+        "node",
+        "scripts/gates/constitutional-gate.mjs",
+        "RULE-1"
+      ]
+    },
+    {
+      "rule": "RULE-2",
+      "argv": [
+        "node",
+        "scripts/gates/constitutional-gate.mjs",
+        "RULE-2"
+      ]
+    },
+    {
+      "rule": "RULE-3",
+      "argv": [
+        "node",
+        "scripts/gates/constitutional-gate.mjs",
+        "RULE-3"
+      ]
+    },
+    {
+      "rule": "RULE-4",
+      "argv": [
+        "node",
+        "scripts/gates/constitutional-gate.mjs",
+        "RULE-4"
+      ]
+    },
+    {
+      "rule": "RULE-5",
+      "argv": [
+        "node",
+        "scripts/gates/constitutional-gate.mjs",
+        "RULE-5"
+      ]
+    },
+    {
+      "rule": "RULE-6",
+      "argv": [
+        "node",
+        "scripts/gates/constitutional-gate.mjs",
+        "RULE-6"
+      ]
+    }
+  ]
+}

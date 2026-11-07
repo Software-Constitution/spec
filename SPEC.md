@@ -2,7 +2,7 @@
 
 # Software Constitution Standard
 
-**Version:** 1.0 (Draft) · **Status:** RFC · **Adopted:** 2026-05-19
+**Version:** 1.1 (Draft) · **Status:** RFC · **Adopted:** 2026-05-19
 **Home:** <https://softwareconstitution.com> · **License:** Apache-2.0
 
 ---
@@ -150,8 +150,8 @@ declared. New seams are added as new component classes appear.
 |---|---|
 | **L1 — Structural** | All artefacts at §3.1-§3.7 exist with the correct names. Schemas validate. The six RULE classes (§RULE-1..§RULE-6) each have at least one declared rule. |
 | **L2 — Gate-enforced** | L1 + every declared rule has a corresponding CI gate that runs on every merge to the default branch. Failing gates block merge. |
-| **L3 — Self-Governed** | L2 + the project itself emits the §RULE-4 evidence event family on every CI run. The repo can re-derive any decision from its own audit chain. |
-| **L4 — Platform-Bijected** | L3 + the project publishes a generated meta-index (`platform/meta-index.generated.json`) that catalogs every named surface (engines, agents, workers, schemas, pages, endpoints, widgets, tables, gates, subdomains, SDKs, plugins) with bidirectional references back to the per-domain manifest that owns each declaration. A drift gate verifies bijection on every merge. |
+| **L3 — Self-Governed** | L2 + the project itself emits §RULE-4 evidence events and supplies replayable externally authenticated, commit-bound CI evidence. Hashes or in-repo self-attestation alone are insufficient. |
+| **L4 — Platform-Bijected** | L3 + the project publishes a generated meta-index (`platform/meta-index.generated.json`) that catalogs every named surface (engines, agents, workers, schemas, pages, endpoints, widgets, tables, gates, subdomains, SDKs, plugins) with bidirectional references back to the per-domain manifest that owns each declaration. A drift gate verifies both directions, duplicate IDs and existing paths on every merge. |
 
 A project MAY self-declare its conformance level in its README. The
 **SCCT (Software Constitution Conformance Test)** at
@@ -270,5 +270,10 @@ own `LICENSE` and patent disclosures, separate from this document.
 
 ---
 
-**End of v1.0 (Draft).** Status: RFC. Feedback:
+**End of v1.1 (Draft).** Status: RFC. Feedback:
 <https://github.com/KYE-Protocol/app/issues> (issue prefix `[scs]`).
+
+
+### Formal verification boundary (v1.1 pilot)
+
+The independent Lean 4 package proves abstract conformance monotonicity and release preconditions. It is **not a proof of the JavaScript implementation**. A source-to-model refinement claim requires additional independently checked obligations. The Aeneas Rust translator is an optional proof adapter for supported safe sequential Rust, not part of the language-neutral compliance definition.

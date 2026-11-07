@@ -90,7 +90,7 @@ Lives at the project root. Schema:
 `run.mjs` walks up from itself to find `constitution-kit.json`, runs
 every check, and exits non-zero on any violation. It has **zero
 runtime dependencies**; JSON Schema validation uses `ajv` when the host
-project already has it and is skipped with a warning when it does not.
+project already has it and is never silently skipped when required.
 
 ## Layout
 

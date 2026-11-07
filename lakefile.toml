@@ -1,0 +1,7 @@
+name = "software_constitution_proofs"
+version = "0.1.0"
+defaultTargets = ["Constitution"]
+
+[[lean_lib]]
+name = "Constitution"
+srcDir = "proofs"
