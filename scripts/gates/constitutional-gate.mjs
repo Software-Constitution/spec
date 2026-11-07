@@ -33,7 +33,9 @@ if (rule === 'RULE-4') {
   const registry = read('constitution/event-registry.json');
   const emitter = readFileSync('scct/scct.mjs','utf8');
   if (!registry.events?.some(x=>x.id==='software-constitution.scct-verdict.v1' && x.emitter==='scct/scct.mjs') ||
-      !emitter.includes('software-constitution.scct-verdict.v1')) fail('undeclared verdict event');
+      !emitter.includes('software-constitution.scct-verdict.v1') ||
+      !registry.events?.some(x=>x.id==='software-constitution.ci-evidence.v1' && x.emitter==='scripts/ci/evidence-receipt.mjs') ||
+      !existsSync('scripts/ci/evidence-receipt.mjs')) fail('undeclared or missing CI evidence event');
 }
 if (rule === 'RULE-5') {
   const p = spawnSync('node',['gates/zero-deviation-mandate.mjs'],{encoding:'utf8'});

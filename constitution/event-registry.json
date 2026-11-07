@@ -5,6 +5,11 @@
       "id": "software-constitution.scct-verdict.v1",
       "emitter": "scct/scct.mjs",
       "destination": "stdout/CI-artifact"
+    },
+    {
+      "id": "software-constitution.ci-evidence.v1",
+      "emitter": "scripts/ci/evidence-receipt.mjs",
+      "destination": "GitHub Actions immutable per-run artifact"
     }
   ]
 }

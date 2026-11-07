@@ -231,7 +231,8 @@ if (constitution) {
 }
 const target = required || 'L1';
 const ok = LEVELS.indexOf(level) >= LEVELS.indexOf(target);
-const verdict = { schema: 'software-constitution.scct-verdict.v1', scct_version:'1.1.0', level,
+const verdict = { schema: 'software-constitution.scct-verdict.v1', scct_version:'1.1.0',
+  commit_sha:entryGitState.head, source_clean_at_entry:entryGitState.ok, level,
   required_level: target, ok, checks, findings };
 console.log(JSON.stringify(verdict, null, 2));
 process.exit(ok ? 0 : 1);
