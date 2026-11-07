@@ -5,7 +5,8 @@
 import { cpSync, existsSync, lstatSync, mkdtempSync, readFileSync, realpathSync,
   rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 
 const BLOCKED=new Set(['.git','node_modules','.lake','dist','build']);
@@ -42,6 +43,19 @@ function locate(document,pointer){
  }
  return current;
 }
+function digest(file){return createHash('sha256').update(readFileSync(file)).digest('hex');}
+function validateMutatedSyntax(file){
+ const suffix=extname(file).toLowerCase();
+ let check=null;
+ if(['.js','.mjs','.cjs'].includes(suffix))
+  check=spawnSync(process.execPath,['--check',file],{encoding:'utf8',timeout:12000});
+ else if(suffix==='.py')
+  check=spawnSync('python3',['-c',
+    'import ast,sys; ast.parse(open(sys.argv[1],encoding="utf-8").read())',file],
+    {encoding:'utf8',timeout:12000});
+ if(check&&(check.error||check.signal||check.status!==0))
+  throw Error('PROBE_DESTROYED_SOURCE_SYNTAX');
+}
 function modify(file,mutation){
  const before=readFileSync(file,'utf8');
  if(before.length>1048576)throw Error('PROBE_INPUT_TOO_LARGE');
@@ -76,32 +90,45 @@ function modify(file,mutation){
  }else throw Error('PROBE_KIND_NOT_SUPPORTED');
  if(after===before)throw Error('PROBE_NO_SEMANTIC_CHANGE');
  writeFileSync(file,after);
+ validateMutatedSyntax(file);
 }
 export function verifyNegativeProbes(root,gate){
  const probes=gate?.probes;
  if(!Array.isArray(probes)||probes.length<1||probes.length>3)
   return {ok:false,reason:'T0_HOLD:AT_LEAST_ONE_NEGATIVE_PROBE_REQUIRED'};
+ // A user may supply a symlinked candidate root; source must be the
+ // PHYSICAL directory, never a symlink whose cpSync clone aliases it.
+ const physicalRoot=realpathSync(root);
  for(const [index,probe] of probes.entries()){
   let scratch;
   try{
-   canonicalFile(root,probe.path);
-   if(probe.path===gate.argv[1])throw Error('PROBE_MUTATES_GATE_EXECUTABLE');
+   const original=canonicalFile(physicalRoot,probe.path);
+   const originalHash=digest(original);
+   const sourceExecutable=canonicalFile(physicalRoot,gate.argv[1]);
+   if(realpathSync(original)===realpathSync(sourceExecutable))
+    throw Error('PROBE_MUTATES_GATE_EXECUTABLE');
    scratch=mkdtempSync(join(tmpdir(),'scct-challenge-'));
    const stage=join(scratch,'candidate');
-   cpSync(root,stage,{recursive:true,force:false,errorOnExist:false,
+   cpSync(physicalRoot,stage,{recursive:true,force:false,errorOnExist:false,
     filter:(source)=>{
-     const rel=relative(root,source);
+     const rel=relative(physicalRoot,source);
      if(!rel)return true;
      if(rel.split(sep).some(v=>BLOCKED.has(v)))return false;
      return !lstatSync(source).isSymbolicLink();
     }
    });
+   if(!lstatSync(stage).isDirectory()||realpathSync(stage)===physicalRoot)
+    throw Error('COPY_IS_NOT_ISOLATED');
    const file=canonicalFile(stage,probe.path);
+   const stageExecutable=canonicalFile(stage,gate.argv[1]);
+   if(realpathSync(file)===realpathSync(stageExecutable))
+    throw Error('PROBE_MUTATES_GATE_EXECUTABLE');
    // The unmutated cloned baseline MUST run first: absent dependencies,
    // invalid copy or a gate that always fails is not evidence of detection.
    if(challengeRun(stage,gate.argv)!==0)throw Error('ISOLATED_CONTROL_GATE_FAILED');
    modify(file,probe);
    if(challengeRun(stage,gate.argv)===0)throw Error('GATE_ACCEPTED_FORBIDDEN_MUTATION');
+   if(digest(original)!==originalHash)throw Error('CANDIDATE_INPUT_CHANGED_BY_PROBE');
   }catch(error){
    return {ok:false,reason:'T0_HOLD:PROBE_'+index+':'+String(error?.message||error).slice(0,180)};
   }finally{

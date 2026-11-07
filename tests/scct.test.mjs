@@ -188,3 +188,34 @@ test('always-green gates and forged or absent probes cannot earn L2',()=>{
   assert.equal(run(root,'L2').verdict.level,'L1','traversal challenge fails closed');
  }finally{rmSync(root,{recursive:true,force:true});}
 });
+
+
+test('probe runner never modifies a symlinked candidate checkout',()=>{
+ const root=fixture(), external=mkdtempSync(join(tmpdir(),'scct-link-'));
+ try{
+  const link=join(external,'root-alias');
+  symlinkSync(root,link,'dir');
+  const file=join(root,'controls/RULE-1.json');
+  const before=readFileSync(file,'utf8');
+  const verdict=run(link,'L2');
+  assert.equal(verdict.code,0,JSON.stringify(verdict.verdict.findings));
+  assert.equal(readFileSync(file,'utf8'),before,
+   'negative probe must never mutate source through a symlinked root');
+ }finally{rmSync(root,{recursive:true,force:true});rmSync(external,{recursive:true,force:true});}
+});
+test('probe cannot mutate its own executable via a path alias',()=>{
+ const root=fixture();
+ try{
+  const manifest=join(root,'constitution/gates.json');
+  const data=JSON.parse(readFileSync(manifest,'utf8'));
+  data.gates[0].probes=[{
+   kind:'append-text',path:'./scripts/gates/1.mjs',
+   text:'\n@@broken imported syntax@@\n'
+  }];
+  put(root,'constitution/gates.json',JSON.stringify(data));
+  const result=run(root,'L2');
+  assert.equal(result.code,1);
+  assert.equal(result.verdict.level,'L1');
+  assert.match(result.verdict.findings.join(' '),/PROBE_MUTATES_GATE_EXECUTABLE/);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
