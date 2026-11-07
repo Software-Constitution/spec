@@ -25,7 +25,7 @@ if (!existsSync(root) || !statSync(root).isDirectory()) {
 const checks = { structural: {}, gate_enforced: {}, self_governed: {}, platform_bijected: {} };
 const findings = [];
 const record = (group, id, ok, reason) => {
-  checks[group][id] = { ok: !!ok, ...(reason ? { detail: String(reason) } : {}) };
+  checks[group][id] = { ok: !!ok, ...(!ok && reason ? { detail: String(reason) } : {}) };
   if (!ok) findings.push(group + '/' + id + ': ' + (reason || 'failed'));
   return !!ok;
 };
