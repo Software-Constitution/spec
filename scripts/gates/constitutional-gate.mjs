@@ -25,7 +25,7 @@ if (rule === 'RULE-2') {
   }
 }
 if (rule === 'RULE-3') {
-  const paths = ['scct/scct.mjs','kit/lib/gate-runner.mjs','kit/run.mjs','scripts/gates/constitutional-gate.mjs'];
+  const paths = ['scct/scct.mjs','kit/lib/gate-runner.mjs','kit/run.mjs','gates/zero-deviation-mandate.mjs'];
   const markers = [String.fromCharCode(84,79,68,79),'FIX'+'ME','XXX','coming'+' soon'];
   for (const p of paths) if (markers.some(x=>readFileSync(p,'utf8').includes(x))) fail('placeholder in ' + p);
 }
