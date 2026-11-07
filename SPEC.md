@@ -124,8 +124,9 @@ itself a constitutional violation. Decay-windowed rules (rules that
 themselves specify a time-boxed compliance trajectory) live in
 `DECAY-WINDOWS.md`, NOT `DEVIATIONS.md`.
 
-Required: a zero-deviation gate that fails when DEVIATIONS.md has
-any heading in its Active section.
+Required: a zero-deviation gate that fails if DEVIATIONS.md has
+any active content, including headings, bare text, comments or duplicate
+active sections. Whitespace and the exact `_(none)_` marker are allowed.
 
 ### §RULE-6 — Coherent Integration / No Orphans
 

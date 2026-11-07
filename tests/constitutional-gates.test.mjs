@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const src=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const paths=['implementation/registry.json','constitution/deployment-scope.json','constitution/event-registry.json','constitution/DEVIATIONS.md','scct/scct.mjs','kit/lib/gate-runner.mjs','kit/run.mjs','gates/zero-deviation-mandate.mjs','scripts/gates/constitutional-gate.mjs'];
+const paths=['implementation/registry.json','constitution/deployment-scope.json','constitution/event-registry.json','constitution/DEVIATIONS.md','scct/scct.mjs','kit/lib/gate-runner.mjs','kit/run.mjs','gates/zero-deviation-mandate.mjs','gates/zero-deviation-mandate.py','scripts/gates/constitutional-gate.mjs'];
 function fixture(){
   const d=mkdtempSync(join(tmpdir(),'scs-gates-'));
   for (const p of paths) {
@@ -32,5 +32,21 @@ for (const [id,mutation] of cases) test('RULE-'+id+' rejects its negative fixtur
   assert.equal(gate(d,id),0,'baseline gate must pass');
   mutation(d);
   assert.notEqual(gate(d,id),0,'mutated gate must fail');
+ } finally {rmSync(d,{recursive:true,force:true});}
+});
+
+test('RULE-5 rejects unstructured and duplicate active entries in both language ports',()=>{
+ const d=fixture();
+ try {
+  for (const mutation of [
+    '## Active deviations\nHidden waiver without heading\n## Historical deviations\n',
+    '## Active deviations\n_(none)_\n## Active deviations\n_(none)_\n'
+  ]) {
+    writeFileSync(join(d,'constitution/DEVIATIONS.md'),mutation);
+    for (const cmd of [['node','gates/zero-deviation-mandate.mjs'],['python3','gates/zero-deviation-mandate.py']]) {
+      const x=spawnSync(cmd[0],[cmd[1]],{cwd:d,encoding:'utf8'});
+      assert.notEqual(x.status,0,cmd[0]+' must reject raw deviation');
+    }
+  }
  } finally {rmSync(d,{recursive:true,force:true});}
 });

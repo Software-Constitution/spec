@@ -6,8 +6,8 @@ Software Constitution Standard v1.0 §RULE-5 — reference gate (Python).
 Contract identical to gates/zero-deviation-mandate.mjs:
   - Read DEVIATIONS.md (path configurable via $SCS_DEVIATIONS).
   - Find the "## Active deviations" heading.
-  - Between that heading and the next ## heading, count ### entries.
-  - Any count > 0 = FAIL.
+  - The active section must be empty (except whitespace or _(none)_).
+  - Headings, text entries, comments and duplicate headings all fail.
 
 Exit code: 0 = pass, 1 = fail.
 """
@@ -26,24 +26,16 @@ def main() -> int:
         return 1
 
     lines = path.read_text(encoding="utf-8").splitlines()
-    active_start = -1
-    active_end = len(lines)
-    in_active = False
-
-    for i, line in enumerate(lines):
-        if re.match(r"^##\s+Active deviations\s*$", line, re.IGNORECASE):
-            in_active = True
-            active_start = i
-            continue
-        if in_active and re.match(r"^##\s+(?!#)", line):
-            active_end = i
-            break
-
-    if active_start < 0:
-        print(f'[FAIL] zero-deviation-mandate — {path} has no "## Active deviations" section', file=sys.stderr)
+    starts = [i for i, line in enumerate(lines)
+              if re.match(r"^##\s+Active deviations\s*$", line, re.IGNORECASE)]
+    if len(starts) != 1:
+        print(f"[FAIL] zero-deviation-mandate — {path} must have exactly one active section", file=sys.stderr)
         return 1
-
-    entries = [l for l in lines[active_start + 1 : active_end] if re.match(r"^###\s+\S", l)]
+    start = starts[0] + 1
+    end = next((i for i in range(start, len(lines))
+                if re.match(r"^##\s+(?!#)", lines[i])), len(lines))
+    entries = [line.strip() for line in lines[start:end]
+               if line.strip() and line.strip() != "_(none)_"]
 
     if entries:
         print(f"[FAIL] zero-deviation-mandate — {len(entries)} active deviation(s) declared in {path}:", file=sys.stderr)

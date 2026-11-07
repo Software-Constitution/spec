@@ -15,3 +15,9 @@ Evidence collection, trusted key custody, external deployment reconciliation and
 ### Immutable evaluation and independent path authority
 
 The L3 evaluator now canonicalizes the candidate root and both externally supplied files with `realpath` and rejects in-repository paths, path aliases and symbolic-link-based provenance escapes. A valid Git checkout must have no tracked changes or untracked files at the time of L3 evaluation; SCCT rechecks after running candidate gates. This protects against accepting an attestation for a different working tree, but it does **not** make running untrusted gates safe: perform SCCT in an isolated immutable CI environment, without privileged credentials. The real production trust-root lifecycle and branch-protection requirements remain explicit separate acceptance gates.
+
+### T0 source admission and deviation semantics
+
+SCCT captures the Git HEAD/clean working-tree state **at process entry, before parsing source or executing any gate**. L3 requires an authenticated attestation of that initial HEAD and another clean, identical HEAD after gate execution. A gate that self-restores dirty inputs during evaluation cannot upgrade them to L3. Candidate code still runs in the invoking process's OS sandbox; only independent runner isolation can bound transient side effects.
+
+Every referenced file, manifest and executable is resolved canonically; symlink escapes and path traversal are rejected. The Active Deviations section is empty only when it contains whitespace or the exact `_(none)_` marker; unstructured text, comments and duplicate sections fail in both JS/Python gates. **Local L2 is not proof of protected GitHub merges**: repository rulesets must separately require the actual CI checks with a verified blocked-merge negative control. Public key proximity alone does not establish independent trust custody.
