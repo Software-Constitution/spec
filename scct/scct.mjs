@@ -3,8 +3,8 @@
 // SCCT 1.1: fail-closed, evidence-aware conformance evaluator.
 // WARNING: L2 executes the candidate repository's declared gate commands.
 // Run against trusted code or in an isolated CI runner.
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, resolve, dirname, relative, isAbsolute } from 'node:path';
+import { readFileSync, existsSync, readdirSync, statSync, realpathSync } from 'node:fs';
+import { join, resolve, dirname, relative, isAbsolute, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash, verify as verifySignature } from 'node:crypto';
 
@@ -22,6 +22,35 @@ if (!existsSync(root) || !statSync(root).isDirectory()) {
   console.error('Candidate root is not a directory: ' + root);
   process.exit(2);
 }
+
+const canonicalRoot = realpathSync(root);
+function inside(base, candidate) {
+  const rel = relative(base, candidate);
+  return rel === '' || (rel !== '..' && !rel.startsWith('..' + sep) && !isAbsolute(rel));
+}
+function independentlyHeldFile(input) {
+  if (!input || !isAbsolute(input) || !existsSync(input)) return false;
+  try {
+    const lexical = resolve(input), physical = realpathSync(input);
+    // Reject in-repo aliases, symlinks that lead into the checkout,
+    // and files whose path has unresolved symlink aliases.
+    return !inside(canonicalRoot, lexical) && !inside(canonicalRoot, physical) &&
+      lexical === physical && statSync(physical).isFile();
+  } catch { return false; }
+}
+function immutableHead() {
+  const git = (command, values) => spawnSync('git', [command, ...values], {
+    cwd: root, encoding: 'utf8', timeout: 15000, maxBuffer: 1048576,
+  });
+  const head = git('rev-parse', ['HEAD']);
+  const top = git('rev-parse', ['--show-toplevel']);
+  const status = git('status', ['--porcelain=v1', '--untracked-files=all']);
+  const normal = head.status === 0 && /^[a-f0-9]{40}$/.test(head.stdout.trim());
+  const rootExact = top.status === 0 && realpathSync(top.stdout.trim()) === canonicalRoot;
+  const unchanged = status.status === 0 && !status.stdout.trim();
+  return { ok: normal && rootExact && unchanged, head: normal ? head.stdout.trim() : null };
+}
+
 const checks = { structural: {}, gate_enforced: {}, self_governed: {}, platform_bijected: {} };
 const findings = [];
 const record = (group, id, ok, reason) => {
@@ -119,12 +148,12 @@ if (constitution) {
     const attestation = arg('attestation');
     const trust = arg('trusted-key');
     let audited = false;
-    if (record('self_governed', 'external-evidence', !!attestation && isAbsolute(attestation) && existsSync(attestation) && !attestation.startsWith(root + '/'), 'external attestation --attestation=/absolute/path required')) {
+    if (record('self_governed', 'external-evidence', independentlyHeldFile(attestation), 'attestation must be independent, regular, canonical, external file')) {
       try {
         const a = JSON.parse(readFileSync(attestation, 'utf8'));
-        const git = spawnSync('git',['rev-parse','HEAD'], {cwd: root, encoding:'utf8'});
-        const head = git.status === 0 ? git.stdout.trim() : null;
-        const bound = /^[a-f0-9]{40}$/.test(a.commit_sha || '') && head === a.commit_sha;
+        const sourceBefore = immutableHead();
+        const head = sourceBefore.head;
+        const bound = sourceBefore.ok && head === a.commit_sha;
         const events = Array.isArray(a.events) ? a.events : [];
         let prev = 'GENESIS';
         let replay = events.length > 0;
@@ -134,7 +163,7 @@ if (constitution) {
           replay = replay && e.prev_hash === prev && hash === e.hash && e.commit_sha === head;
           prev = e.hash;
         }
-        const trusted = !!trust && isAbsolute(trust) && existsSync(trust) && !trust.startsWith(root + '/');
+        const trusted = independentlyHeldFile(trust);
         let authenticated = false;
         if (trusted && typeof a.signature === 'string') {
           try {
@@ -146,7 +175,10 @@ if (constitution) {
         const b1 = record('self_governed','head-bound',bound,'attestation must bind to current git HEAD');
         const b2 = record('self_governed','replayable-chain',replay,'invalid or empty SHA-256 evidence chain');
         const b3 = record('self_governed','trusted-ed25519-signature',trusted && authenticated,'external trust root and valid Ed25519 signature required');
-        audited = b1 && b2 && b3;
+        const after = immutableHead();
+        const b4 = record('self_governed','immutable-source-verified',sourceBefore.ok && after.ok && after.head === head,
+          'working tree must remain clean and head-bound before and after gate execution');
+        audited = b1 && b2 && b3 && b4;
       } catch(e) { record('self_governed','attestation-parse',false,e.message); }
     }
     if (audited) level = 'L3';
